@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "nombre": "Sabores del Norte",
+    "tipo": "restaurante",
+    "descripcion": "Comida piurana tradicional preparada con productos locales, como ceviche, seco de chabelo y malarrabia.",
+    "horarios": "Lunes a sábado, 12:00 - 22:00",
+    "precio": 35.0,
+    "ruta": "Av. Grau 450, Piura",
+    "contacto": "999888777",
+    "aceptaReservas": true,
+    "atenciones": 0,
+    "calificacion": 4.7,
+    "activo": true
+  },
+  {
+    "id": 2,
+    "nombre": "Guías Piura Aventura",
+    "tipo": "guia",
+    "descripcion": "Recorridos guiados por lugares naturales y culturales de Piura para grupos y familias.",
+    "horarios": "Previa reserva, todos los días",
+    "precio": 80.0,
+    "ruta": "Piura - Ayabaca - Huancabamba",
+    "contacto": "guias@piura.pe",
+    "aceptaReservas": true,
+    "atenciones": 0,
+    "calificacion": 4.9,
+    "activo": true
+  },
+  {
+    "id": 3,
+    "nombre": "Hotel Río Piura",
+    "tipo": "hotel",
+    "descripcion": "Hospedaje con habitaciones cómodas, desayuno y atención para visitantes de la región.",
+    "horarios": "Atención 24 horas",
+    "precio": 120.0,
+    "ruta": "Jr. Lima 210, Piura",
+    "contacto": "reservas@hotelrio.pe",
+    "aceptaReservas": true,
+    "atenciones": 0,
+    "calificacion": 4.5,
+    "activo": true
+  },
+  {
+    "id": 4,
+    "nombre": "Artesanías Tallán",
+    "tipo": "tienda",
+    "descripcion": "Tienda de recuerdos, tejidos y artesanías elaboradas por productores locales de Piura.",
+    "horarios": "Lunes a sábado, 09:00 - 20:00",
+    "precio": 25.0,
+    "ruta": "Jr. Ayacucho 125, Piura",
+    "contacto": "artesanias.tallan@gmail.com",
+    "aceptaReservas": false,
+    "atenciones": 0,
+    "calificacion": 4.4,
+    "activo": true
+  }
+]

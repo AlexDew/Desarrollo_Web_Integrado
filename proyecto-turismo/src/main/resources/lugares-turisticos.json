@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "nombre": "Plaza de Armas de Piura",
+    "tipo": "cultural",
+    "descripcion": "Espacio histórico y punto de encuentro del centro de Piura.",
+    "direccion": "Centro de Piura",
+    "horarios": "Todos los días, 06:00 - 22:00",
+    "contacto": "turismo@piura.pe",
+    "visitantes": 0,
+    "calificacion": 4.8,
+    "activo": true
+  },
+  {
+    "id": 2,
+    "nombre": "Catarata de Caracucho",
+    "tipo": "naturaleza",
+    "descripcion": "Paisaje natural poco conocido ideal para una excursión.",
+    "direccion": "Ayabaca, Piura",
+    "horarios": "Sábados y domingos, 08:00 - 17:00",
+    "contacto": "turismo@piura.pe",
+    "visitantes": 0,
+    "calificacion": 4.6,
+    "activo": true
+  }
+]
