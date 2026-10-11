@@ -1,39 +1,43 @@
 package com.utp.proyecto.service;
 
 import com.utp.proyecto.model.LugarTuristico;
+import com.utp.proyecto.model.Usuario;
 import com.utp.proyecto.repository.LugarTuristicoRepository;
-import com.utp.proyecto.repository.ServicioTuristicoRepository;
+import com.utp.proyecto.repository.UsuarioRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class CatalogoTuristicoServiceTest {
+class LugarTuristicoServiceTest {
     @Mock
     private LugarTuristicoRepository lugares;
     @Mock
-    private ServicioTuristicoRepository servicios;
+    private UsuarioRepository usuarios;
     @InjectMocks
-    private CatalogoTuristicoService catalogo;
+    private LugarTuristicoService lugaresService;
 
     @Test
-    void guardarLugar_asignaIdYValoresIniciales() {
-        when(lugares.findAll()).thenReturn(List.of());
+    void guardarLugar_asignaValoresIniciales() {
         LugarTuristico nuevo = new LugarTuristico();
+        Usuario propietario = new Usuario();
+        propietario.setId(7L);
+        when(usuarios.getReferenceById(7L)).thenReturn(propietario);
         when(lugares.save(nuevo)).thenReturn(nuevo);
 
-        LugarTuristico resultado = catalogo.guardarLugar(nuevo);
+        LugarTuristico resultado = lugaresService.guardarLugar(nuevo, 7L);
 
-        assertThat(resultado.getId()).isEqualTo(1L);
+        assertThat(resultado.getId()).isNull();
         assertThat(resultado.getVisitantes()).isZero();
         assertThat(resultado.getActivo()).isTrue();
+        assertThat(resultado.getPropietario()).isSameAs(propietario);
         verify(lugares).save(nuevo);
     }
 
@@ -42,12 +46,12 @@ class CatalogoTuristicoServiceTest {
         LugarTuristico lugar = new LugarTuristico();
         lugar.setId(1L);
         lugar.setVisitantes(4);
-        when(lugares.findById(1L)).thenReturn(lugar);
-        when(lugares.update(lugar)).thenReturn(lugar);
+        when(lugares.findById(1L)).thenReturn(Optional.of(lugar));
+        when(lugares.save(lugar)).thenReturn(lugar);
 
-        catalogo.registrarVisita(1L);
+        lugaresService.registrarVisita(1L);
 
         assertThat(lugar.getVisitantes()).isEqualTo(5);
-        verify(lugares).update(lugar);
+        verify(lugares).save(lugar);
     }
 }
