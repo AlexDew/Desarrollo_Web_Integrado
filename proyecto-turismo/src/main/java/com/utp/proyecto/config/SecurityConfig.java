@@ -55,7 +55,9 @@ public class SecurityConfig {
                                 response.sendError(403, "No tienes permiso para esta operación")))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/auth/registro", "/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/cuenta/roles").authenticated()
 
                         .requestMatchers(HttpMethod.GET,
                                 "/api/lugares", "/api/lugares/**",
@@ -70,12 +72,15 @@ public class SecurityConfig {
                                 "/api/lugares/*/calificacion").hasRole("TURISTA")
                         .requestMatchers(HttpMethod.POST,
                                 "/api/turista/servicios/*/reservas").hasRole("TURISTA")
+                        .requestMatchers("/api/turista/**").hasRole("TURISTA")
 
                         .requestMatchers(HttpMethod.GET,
                                 "/api/estadisticas",
                                 "/api/servicios/estadisticas",
                                 "/api/servicios").hasAnyRole("PROPIETARIO", "GUIA")
 
+                        .requestMatchers("/api/servicios/lugares", "/api/servicios/lugares/**")
+                        .hasRole("PROPIETARIO")
                         .requestMatchers(HttpMethod.POST,
                                 "/api/servicios/lugares", "/api/servicios/lugares/**",
                                 "/api/lugares", "/api/lugares/**").hasRole("PROPIETARIO")
@@ -89,6 +94,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/servicios").hasAnyRole("PROPIETARIO", "GUIA")
                         .requestMatchers(HttpMethod.PUT, "/api/servicios/**").hasAnyRole("PROPIETARIO", "GUIA")
                         .requestMatchers(HttpMethod.DELETE, "/api/servicios/**").hasAnyRole("PROPIETARIO", "GUIA")
+                        .requestMatchers("/api/servicios/**").hasAnyRole("PROPIETARIO", "GUIA")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

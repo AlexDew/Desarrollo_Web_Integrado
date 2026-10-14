@@ -8,7 +8,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -19,11 +22,21 @@ class TuristaControllerTest {
     private TuristaController controller;
 
     @Test
-    void reservar_lugarExistenteDevuelveRespuestaOk() {
+    void servicios_sinFiltroListaCatalogoActivo() {
         ServicioTuristico servicio = new ServicioTuristico();
-        servicio.setId(1L);
-        when(servicios.registrarAtencion(1L)).thenReturn(servicio);
+        when(servicios.listarServicios()).thenReturn(List.of(servicio));
 
-        assertThat(controller.reservar(1L).getStatusCode().value()).isEqualTo(200);
+        assertThat(controller.servicios(null)).containsExactly(servicio);
+        verify(servicios).listarServicios();
     }
+
+    @Test
+    void servicios_conFiltroBuscaPorTipo() {
+        ServicioTuristico servicio = new ServicioTuristico();
+        when(servicios.buscarServiciosPorTipo("guia")).thenReturn(List.of(servicio));
+
+        assertThat(controller.servicios("guia")).containsExactly(servicio);
+        verify(servicios).buscarServiciosPorTipo("guia");
+    }
+
 }

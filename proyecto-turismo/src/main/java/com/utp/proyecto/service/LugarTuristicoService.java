@@ -3,9 +3,9 @@ package com.utp.proyecto.service;
 import com.utp.proyecto.model.LugarTuristico;
 import com.utp.proyecto.repository.UsuarioRepository;
 import com.utp.proyecto.repository.LugarTuristicoRepository;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class LugarTuristicoService {
@@ -26,9 +26,15 @@ public class LugarTuristicoService {
     }
 
     public List<LugarTuristico> buscarLugaresPorTipo(String tipo) {
-        return listarLugares().stream()
-                .filter(lugar -> lugar.getTipo().equalsIgnoreCase(tipo))
-                .toList();
+        return lugares.listarActivosPorTipo(tipo);
+    }
+
+    public List<LugarTuristico> listarActivosMejorCalificados() {
+        return lugares.listarActivosMejorCalificados();
+    }
+
+    public List<LugarTuristico> listarActivosMasVisitados() {
+        return lugares.listarActivosMasVisitados();
     }
 
     public LugarTuristico guardarLugar(LugarTuristico lugar, Long propietarioId) {
@@ -62,6 +68,7 @@ public class LugarTuristicoService {
         return true;
     }
 
+    @Transactional
     public LugarTuristico registrarVisita(Long id) {
         LugarTuristico lugar = buscarLugar(id);
         if (lugar == null) return null;
@@ -69,6 +76,7 @@ public class LugarTuristicoService {
         return lugares.save(lugar);
     }
 
+    @Transactional
     public boolean calificarLugar(Long id, Double calificacion) {
         LugarTuristico lugar = buscarLugar(id);
         if (lugar == null || calificacion == null || calificacion < 1 || calificacion > 5) {

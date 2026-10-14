@@ -1,10 +1,13 @@
 package com.utp.proyecto.service;
 
 import com.utp.proyecto.model.ServicioTuristico;
-import com.utp.proyecto.model.Usuario;
+import com.utp.proyecto.repository.ReservaRepository;
 import com.utp.proyecto.repository.ServicioTuristicoRepository;
 import com.utp.proyecto.repository.UsuarioRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -12,14 +15,19 @@ import java.util.List;
 public class ServicioTuristicoService {
     private final ServicioTuristicoRepository servicios;
     private final UsuarioRepository usuarios;
+    private final ReservaRepository reservas;
 
-    public ServicioTuristicoService(ServicioTuristicoRepository servicios, UsuarioRepository usuarios) {
+    public ServicioTuristicoService(
+            ServicioTuristicoRepository servicios,
+            UsuarioRepository usuarios,
+            ReservaRepository reservas) {
         this.servicios = servicios;
         this.usuarios = usuarios;
+        this.reservas = reservas;
     }
 
     public List<ServicioTuristico> listarServicios() {
-        return servicios.findAll().stream().filter(ServicioTuristico::getActivo).toList();
+        return servicios.listarActivos();
     }
 
     public ServicioTuristico buscarServicio(Long id) {
@@ -27,11 +35,14 @@ public class ServicioTuristicoService {
     }
 
     public List<ServicioTuristico> buscarServiciosPorTipo(String tipo) {
-        return listarServicios().stream()
-                .filter(servicio -> servicio.getTipo().equalsIgnoreCase(tipo))
-                .toList();
+        return servicios.listarActivosPorTipo(tipo);
     }
 
+    public List<ServicioTuristico> listarServiciosQueAceptanReservas() {
+        return servicios.listarActivosQueAceptanReservas();
+    }
+
+    @Transactional
     public ServicioTuristico guardarServicio(ServicioTuristico servicio, Long creadorId) {
         servicio.setId(null);
         servicio.setActivo(true);
@@ -41,6 +52,7 @@ public class ServicioTuristicoService {
         return servicios.save(servicio);
     }
 
+    @Transactional
     public ServicioTuristico actualizarServicio(Long id, ServicioTuristico datos, Long creadorId) {
         ServicioTuristico servicio = buscarServicio(id);
         if (servicio == null || servicio.getCreador() == null
@@ -57,18 +69,18 @@ public class ServicioTuristicoService {
         return servicios.save(servicio);
     }
 
+    @Transactional
     public boolean eliminarServicio(Long id, Long creadorId) {
         ServicioTuristico servicio = buscarServicio(id);
         if (servicio == null || servicio.getCreador() == null
                 || !servicio.getCreador().getId().equals(creadorId)) return false;
+        if (reservas.existsByServicio_Id(id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "No se puede eliminar un servicio que tiene solicitudes de reserva");
+        }
         servicios.delete(servicio);
         return true;
     }
 
-    public ServicioTuristico registrarAtencion(Long id) {
-        ServicioTuristico servicio = buscarServicio(id);
-        if (servicio == null) return null;
-        servicio.setAtenciones(servicio.getAtenciones() + 1);
-        return servicios.save(servicio);
-    }
 }

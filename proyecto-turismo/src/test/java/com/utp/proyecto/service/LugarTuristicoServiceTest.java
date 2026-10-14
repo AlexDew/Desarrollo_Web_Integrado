@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -53,5 +54,27 @@ class LugarTuristicoServiceTest {
 
         assertThat(lugar.getVisitantes()).isEqualTo(5);
         verify(lugares).save(lugar);
+    }
+
+    @Test
+    void consultasDeCatalogo_deleganFiltrosYRankingsAlRepositorio() {
+        lugaresService.buscarLugaresPorTipo("cultural");
+        lugaresService.listarActivosMejorCalificados();
+        lugaresService.listarActivosMasVisitados();
+
+        verify(lugares).listarActivosPorTipo("cultural");
+        verify(lugares).listarActivosMejorCalificados();
+        verify(lugares).listarActivosMasVisitados();
+        verifyNoMoreInteractions(lugares);
+    }
+
+    @Test
+    void operacionesDeValoracionYVisitasSonTransaccionales() throws NoSuchMethodException {
+        assertThat(LugarTuristicoService.class
+                .getMethod("registrarVisita", Long.class)
+                .isAnnotationPresent(Transactional.class)).isTrue();
+        assertThat(LugarTuristicoService.class
+                .getMethod("calificarLugar", Long.class, Double.class)
+                .isAnnotationPresent(Transactional.class)).isTrue();
     }
 }
