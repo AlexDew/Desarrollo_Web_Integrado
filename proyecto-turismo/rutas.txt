@@ -1,0 +1,61 @@
+﻿AuthController.java: @RequestMapping("/api/auth")
+AuthController.java: public class AuthController {
+AuthController.java: public AuthController(AuthService authService) {
+AuthController.java: @PostMapping({"/registro", "/register"})
+AuthController.java: public AuthResponse registrar(@Valid @RequestBody RegistroRequest request) {
+AuthController.java: @PostMapping("/login")
+AuthController.java: public AuthResponse iniciarSesion(@Valid @RequestBody LoginRequest request) {
+CuentaController.java: @RequestMapping("/api/cuenta")
+CuentaController.java: public class CuentaController {
+CuentaController.java: public CuentaController(CuentaService cuentaService) {
+CuentaController.java: @PostMapping("/roles")
+CuentaController.java: public CuentaRolesResponse agregarRol(
+EstadisticasController.java: @RequestMapping({"/api/estadisticas", "/api/servicios/estadisticas"})
+EstadisticasController.java: public class EstadisticasController {
+EstadisticasController.java: public EstadisticasController(LugarTuristicoService lugares, ServicioTuristicoService servicios) {
+EstadisticasController.java: @GetMapping
+EstadisticasController.java: public Map<String, Integer> estadisticas() {
+LugaresController.java: public class LugaresController {
+LugaresController.java: public LugaresController(LugarTuristicoService lugares) {
+LugaresController.java: @PostMapping({"/api/lugares", "/api/servicios/lugares"})
+LugaresController.java: public LugarTuristico registrarLugar(
+LugaresController.java: @PutMapping({"/api/lugares/{id}", "/api/servicios/lugares/{id}"})
+LugaresController.java: public ResponseEntity<LugarTuristico> actualizarLugar(
+LugaresController.java: @DeleteMapping({"/api/lugares/{id}", "/api/servicios/lugares/{id}"})
+LugaresController.java: public ResponseEntity<Void> eliminarLugar(
+LugaresController.java: @GetMapping({"/api/lugares", "/api/turista/lugares"})
+LugaresController.java: public List<LugarTuristico> listarLugares(@RequestParam(required = false) String tipo) {
+LugaresController.java: @GetMapping({"/api/lugares/{id}", "/api/turista/lugares/{id}"})
+LugaresController.java: public ResponseEntity<LugarTuristico> lugar(@PathVariable Long id) {
+LugaresController.java: @PostMapping({"/api/lugares/{id}/visitas", "/api/turista/lugares/{id}/visitas"})
+LugaresController.java: public ResponseEntity<LugarTuristico> registrarVisita(@PathVariable Long id) {
+LugaresController.java: @PatchMapping({"/api/lugares/{id}/calificacion", "/api/turista/lugares/{id}/calificacion"})
+LugaresController.java: public ResponseEntity<LugarTuristico> calificar(
+ReservaController.java: public class ReservaController {
+ReservaController.java: public ReservaController(ReservaService reservas) {
+ReservaController.java: @PostMapping("/api/turista/servicios/{servicioId}/reservas")
+ReservaController.java: public ReservaResponse crear(
+ReservaController.java: @GetMapping("/api/turista/reservas")
+ReservaController.java: public List<ReservaResponse> listarDelTurista(
+ReservaController.java: @DeleteMapping("/api/turista/reservas/{reservaId}")
+ReservaController.java: public ResponseEntity<Void> cancelar(
+ReservaController.java: @GetMapping("/api/servicios/reservas")
+ReservaController.java: public List<ReservaResponse> listarDeServiciosDelPropietario(
+ReservaController.java: @PatchMapping("/api/servicios/reservas/{reservaId}/estado")
+ReservaController.java: public ReservaResponse cambiarEstado(
+ServiciosController.java: @RequestMapping("/api/servicios")
+ServiciosController.java: public class ServiciosController {
+ServiciosController.java: public ServiciosController(ServicioTuristicoService servicios) {
+ServiciosController.java: @PostMapping
+ServiciosController.java: public ServicioTuristico registrarServicio(
+ServiciosController.java: @PutMapping("/{id}")
+ServiciosController.java: public ResponseEntity<ServicioTuristico> actualizarServicio(
+ServiciosController.java: @DeleteMapping("/{id}")
+ServiciosController.java: public ResponseEntity<Void> eliminarServicio(
+ServiciosController.java: @GetMapping
+ServiciosController.java: public List<ServicioTuristico> listarServicios() { return servicios.listarServicios(); }
+TuristaController.java: @RequestMapping("/api/turista")
+TuristaController.java: public class TuristaController {
+TuristaController.java: public TuristaController(ServicioTuristicoService servicios) {
+TuristaController.java: @GetMapping("/servicios")
+TuristaController.java: public List<ServicioTuristico> servicios(@RequestParam(required = false) String tipo) {
