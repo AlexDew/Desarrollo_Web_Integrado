@@ -1,0 +1,50 @@
+<section class="page-shell">
+  <form class="editor" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <a class="back-link" routerLink="/gestion/lugares">← Volver a mis lugares</a>
+    <p class="eyebrow">Gestión de lugares</p>
+    <h1>{{ editing ? 'Editar lugar' : 'Registrar lugar turístico' }}</h1>
+    <p class="intro">Completa la información del atractivo turístico.</p>
+    @if (errorMessage) {
+      <p class="alert" role="alert">{{ errorMessage }}</p>
+    }
+    @if (loading) {
+      <p>Cargando lugar…</p>
+    } @else {
+      <div class="form-grid">
+        <div class="field">
+          <label for="nombre">Nombre</label>
+          <input id="nombre" formControlName="nombre">
+          <app-field-error [control]="form.controls.nombre" [serverError]="serverErrors['nombre']" />
+        </div>
+        <div class="field">
+          <label for="tipo">Tipo</label>
+          <input id="tipo" formControlName="tipo" placeholder="cultural, natural…">
+          <app-field-error [control]="form.controls.tipo" [serverError]="serverErrors['tipo']" />
+        </div>
+        <div class="field field--wide">
+          <label for="descripcion">Descripción</label>
+          <textarea id="descripcion" rows="4" formControlName="descripcion"></textarea>
+          <app-field-error [control]="form.controls.descripcion" [serverError]="serverErrors['descripcion']" />
+        </div>
+        <div class="field">
+          <label for="direccion">Dirección</label>
+          <input id="direccion" formControlName="direccion">
+          <app-field-error [control]="form.controls.direccion" [serverError]="serverErrors['direccion']" />
+        </div>
+        <div class="field">
+          <label for="horarios">Horarios</label>
+          <input id="horarios" formControlName="horarios">
+          <app-field-error [control]="form.controls.horarios" [serverError]="serverErrors['horarios']" />
+        </div>
+        <div class="field">
+          <label for="contacto">Contacto</label>
+          <input id="contacto" formControlName="contacto">
+          <app-field-error [control]="form.controls.contacto" [serverError]="serverErrors['contacto']" />
+        </div>
+      </div>
+      <button class="primary-button" type="submit" [disabled]="submitting">
+        {{ submitting ? 'Guardando…' : (editing ? 'Guardar cambios' : 'Crear lugar') }}
+      </button>
+    }
+  </form>
+</section>

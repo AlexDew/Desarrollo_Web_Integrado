@@ -1,0 +1,11 @@
+@use './styles/variables' as *;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: $color-page;
+}
+
+main {
+  min-height: calc(100vh - 4.5rem);
+}

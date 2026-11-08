@@ -1,0 +1,98 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.page-shell {
+  @include content-shell;
+  padding-block: 3rem;
+}
+
+.page-heading {
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.4rem;
+  color: $color-primary;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+h1,
+h2 {
+  margin: 0;
+  color: $color-ink;
+}
+
+.page-heading p:not(.eyebrow),
+.reservation-card > p,
+.status {
+  color: $color-muted;
+}
+
+.reservation-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.reservation-card {
+  padding: 1.25rem;
+  border: 1px solid $color-border;
+  border-radius: $radius-card;
+  background: $color-surface;
+  box-shadow: $shadow-card;
+}
+
+.reservation-card__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.status-badge {
+  padding: 0.35rem 0.6rem;
+  border-radius: 2rem;
+  color: $color-muted;
+  background: $color-page;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.status-badge--pending {
+  color: #82530a;
+  background: #fff1d2;
+}
+
+footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.primary-button,
+.danger-button {
+  padding: 0.6rem 0.85rem;
+  border: 0;
+  border-radius: 0.5rem;
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-button {
+  background: $color-primary;
+}
+
+.danger-button {
+  background: $color-danger;
+}
+
+.alert,
+.empty-state {
+  padding: 1rem;
+  border-radius: 0.65rem;
+  color: $color-danger;
+  background: #fff0ef;
+}

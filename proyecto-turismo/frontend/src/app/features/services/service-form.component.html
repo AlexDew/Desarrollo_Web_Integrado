@@ -1,0 +1,60 @@
+<section class="page-shell">
+  <form class="editor" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <a class="back-link" routerLink="/gestion/servicios">← Volver a mis servicios</a>
+    <p class="eyebrow">Gestión de servicios</p>
+    <h1>{{ editing ? 'Editar servicio' : 'Publicar un servicio' }}</h1>
+    <p class="intro">Completa los datos que verán los turistas.</p>
+    @if (errorMessage) {
+      <p class="alert" role="alert">{{ errorMessage }}</p>
+    }
+    @if (loading) {
+      <p>Cargando servicio…</p>
+    } @else {
+      <div class="form-grid">
+        <div class="field">
+          <label for="nombre">Nombre</label>
+          <input id="nombre" formControlName="nombre">
+          <app-field-error [control]="form.controls.nombre" [serverError]="serverErrors['nombre']" />
+        </div>
+        <div class="field">
+          <label for="tipo">Tipo</label>
+          <input id="tipo" formControlName="tipo" placeholder="guía, restaurante, hotel…">
+          <app-field-error [control]="form.controls.tipo" [serverError]="serverErrors['tipo']" />
+        </div>
+        <div class="field field--wide">
+          <label for="descripcion">Descripción</label>
+          <textarea id="descripcion" rows="4" formControlName="descripcion"></textarea>
+          <app-field-error [control]="form.controls.descripcion" [serverError]="serverErrors['descripcion']" />
+        </div>
+        <div class="field">
+          <label for="horarios">Horarios</label>
+          <input id="horarios" formControlName="horarios">
+          <app-field-error [control]="form.controls.horarios" [serverError]="serverErrors['horarios']" />
+        </div>
+        <div class="field">
+          <label for="precio">Precio (S/)</label>
+          <input id="precio" type="number" min="0" step="0.01" formControlName="precio">
+          <app-field-error [control]="form.controls.precio" [serverError]="serverErrors['precio']" />
+        </div>
+        <div class="field">
+          <label for="ruta">Ruta o dirección</label>
+          <input id="ruta" formControlName="ruta">
+          <app-field-error [control]="form.controls.ruta" [serverError]="serverErrors['ruta']" />
+        </div>
+        <div class="field">
+          <label for="contacto">Contacto</label>
+          <input id="contacto" formControlName="contacto">
+          <app-field-error [control]="form.controls.contacto" [serverError]="serverErrors['contacto']" />
+        </div>
+        <label class="checkbox-field field--wide">
+          <input type="checkbox" formControlName="aceptaReservas">
+          Acepto solicitudes de reserva para este servicio
+        </label>
+        <app-field-error [control]="form.controls.aceptaReservas" [serverError]="serverErrors['aceptaReservas']" />
+      </div>
+      <button class="primary-button" type="submit" [disabled]="submitting">
+        {{ submitting ? 'Guardando…' : (editing ? 'Guardar cambios' : 'Crear servicio') }}
+      </button>
+    }
+  </form>
+</section>

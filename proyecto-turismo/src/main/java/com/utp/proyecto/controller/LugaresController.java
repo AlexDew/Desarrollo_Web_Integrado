@@ -50,6 +50,12 @@ public class LugaresController {
         return tipo == null ? lugares.listarLugares() : lugares.buscarLugaresPorTipo(tipo);
     }
 
+    @GetMapping("/api/servicios/lugares")
+    public List<LugarTuristico> listarMisLugares(
+            @AuthenticationPrincipal UsuarioAutenticado usuario) {
+        return lugares.listarLugaresDelPropietario(usuario.getId());
+    }
+
     @GetMapping({"/api/lugares/{id}", "/api/turista/lugares/{id}"})
     public ResponseEntity<LugarTuristico> lugar(@PathVariable Long id) {
         return ResponseEntity.ofNullable(lugares.buscarLugar(id));

@@ -1,0 +1,21 @@
+@use 'variables' as *;
+
+@mixin content-shell {
+  width: min(100% - 2rem, $content-width);
+  margin-inline: auto;
+}
+
+@mixin form-control {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid $color-border;
+  border-radius: 0.5rem;
+  background: $color-surface;
+  color: $color-ink;
+  font: inherit;
+
+  &:focus {
+    outline: 3px solid rgb(23 107 82 / 18%);
+    border-color: $color-primary;
+  }
+}

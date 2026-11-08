@@ -1,0 +1,18 @@
+<article class="service-card">
+  <div class="service-card__eyebrow">{{ servicio.tipo }}</div>
+  <h2>{{ servicio.nombre }}</h2>
+  <p>{{ servicio.descripcion }}</p>
+  <dl>
+    <div><dt>Precio</dt><dd>S/ {{ servicio.precio | number: '1.2-2' }}</dd></div>
+    <div><dt>Horario</dt><dd>{{ servicio.horarios }}</dd></div>
+    <div><dt>Contacto</dt><dd>{{ servicio.contacto }}</dd></div>
+  </dl>
+  <footer>
+    @if (management) {
+      <a class="button button--quiet" [routerLink]="['/gestion/servicios', servicio.id, 'editar']">Editar</a>
+      <button class="button button--danger" type="button" (click)="deleteService.emit(servicio.id)">Eliminar</button>
+    } @else if (servicio.aceptaReservas) {
+      <a class="button" [routerLink]="['/reservas/nueva', servicio.id]">Solicitar reserva</a>
+    }
+  </footer>
+</article>

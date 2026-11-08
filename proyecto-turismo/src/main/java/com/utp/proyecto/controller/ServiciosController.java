@@ -47,4 +47,10 @@ public class ServiciosController {
 
     @GetMapping
     public List<ServicioTuristico> listarServicios() { return servicios.listarServicios(); }
+
+    @GetMapping("/mios")
+    public List<ServicioTuristico> listarMisServicios(
+            @AuthenticationPrincipal UsuarioAutenticado usuario) {
+        return servicios.listarServiciosDelCreador(usuario.getId());
+    }
 }

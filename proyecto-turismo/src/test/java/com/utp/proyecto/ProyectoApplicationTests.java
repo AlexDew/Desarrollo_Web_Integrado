@@ -33,10 +33,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -338,6 +340,78 @@ class ProyectoApplicationTests {
                             .header("Authorization", "Bearer " + token))
                     .andExpect(status().isForbidden());
         }
+    }
+
+    @Test
+    void preflightCorsPermiteElOrigenAngularConfigurado() throws Exception {
+        mockMvc.perform(options("/api/servicios")
+                        .header("Origin", "http://localhost:4200")
+                        .header("Access-Control-Request-Method", "POST")
+                        .header("Access-Control-Request-Headers", "authorization,content-type"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:4200"))
+                .andExpect(header().string("Access-Control-Allow-Methods",
+                        org.hamcrest.Matchers.containsString("POST")))
+                .andExpect(header().string("Access-Control-Allow-Headers",
+                        org.hamcrest.Matchers.containsString("authorization")));
+    }
+
+    @Test
+    void rutasDeGestionListanSoloRegistrosDelUsuarioAutenticado() throws Exception {
+        String guiaA = iniciarSesionConRol("guia-listado-a", Rol.GUIA);
+        String guiaB = iniciarSesionConRol("guia-listado-b", Rol.GUIA);
+        String propietario = iniciarSesionConRol("propietario-listado", Rol.PROPIETARIO);
+        String servicioBase = """
+                {
+                  "nombre": "%s",
+                  "tipo": "guia",
+                  "descripcion": "Servicio para probar aislamiento de gestión",
+                  "horarios": "Todos los días",
+                  "precio": 25.00,
+                  "ruta": "Piura",
+                  "contacto": "contacto@example.test",
+                  "aceptaReservas": true
+                }
+                """;
+
+        mockMvc.perform(post("/api/servicios")
+                        .header("Authorization", "Bearer " + guiaA)
+                        .contentType(APPLICATION_JSON)
+                        .content(servicioBase.formatted("Servicio privado A")))
+                .andExpect(status().isCreated());
+        mockMvc.perform(post("/api/servicios")
+                        .header("Authorization", "Bearer " + guiaB)
+                        .contentType(APPLICATION_JSON)
+                        .content(servicioBase.formatted("Servicio privado B")))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/servicios/mios")
+                        .header("Authorization", "Bearer " + guiaA))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Servicio privado A")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(
+                        org.hamcrest.Matchers.containsString("Servicio privado B"))));
+
+        String lugar = """
+                {
+                  "nombre": "%s",
+                  "tipo": "cultural",
+                  "descripcion": "Lugar para probar el listado del propietario",
+                  "direccion": "Piura",
+                  "horarios": "Todos los días",
+                  "contacto": "contacto@example.test"
+                }
+                """;
+        mockMvc.perform(post("/api/lugares")
+                        .header("Authorization", "Bearer " + propietario)
+                        .contentType(APPLICATION_JSON)
+                        .content(lugar.formatted("Lugar privado propietario")))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/servicios/lugares")
+                        .header("Authorization", "Bearer " + propietario))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Lugar privado propietario")));
     }
 
     @Test

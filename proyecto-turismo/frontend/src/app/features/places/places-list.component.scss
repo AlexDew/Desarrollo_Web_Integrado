@@ -1,0 +1,120 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.page-shell {
+  @include content-shell;
+  padding-block: 3rem;
+}
+
+.page-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.eyebrow,
+.place-type {
+  margin: 0 0 0.4rem;
+  color: $color-primary;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+h1,
+h2 {
+  color: $color-ink;
+}
+
+h1 {
+  margin: 0;
+}
+
+.page-heading p:not(.eyebrow),
+.place-card > p:not(.place-type),
+dd,
+.status {
+  color: $color-muted;
+}
+
+.place-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  gap: 1.25rem;
+}
+
+.place-card {
+  padding: 1.25rem;
+  border: 1px solid $color-border;
+  border-radius: $radius-card;
+  background: $color-surface;
+  box-shadow: $shadow-card;
+}
+
+.place-card h2 {
+  margin-block: 0.4rem;
+}
+
+dl {
+  display: grid;
+  gap: 0.5rem;
+}
+
+dl div {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+  gap: 0.5rem;
+}
+
+dd {
+  margin: 0;
+}
+
+footer {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.primary-button,
+.quiet-button,
+.danger-button {
+  padding: 0.65rem 0.85rem;
+  border: 0;
+  border-radius: 0.5rem;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.primary-button {
+  color: white;
+  background: $color-primary;
+  white-space: nowrap;
+}
+
+.quiet-button {
+  color: $color-primary;
+  background: #eaf3ed;
+}
+
+.danger-button {
+  color: white;
+  background: $color-danger;
+}
+
+.alert,
+.empty-state {
+  padding: 1rem;
+  border-radius: 0.65rem;
+  color: $color-danger;
+  background: #fff0ef;
+}
+
+@media (max-width: 40rem) {
+  .page-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

@@ -10,6 +10,8 @@ import java.util.List;
 
 @Repository
 public interface ServicioTuristicoRepository extends JpaRepository<ServicioTuristico, Long> {
+    List<ServicioTuristico> findByCreador_Id(Long creadorId);
+
     @Query("SELECT servicio FROM ServicioTuristico servicio WHERE servicio.activo = true")
     List<ServicioTuristico> listarActivos();
 

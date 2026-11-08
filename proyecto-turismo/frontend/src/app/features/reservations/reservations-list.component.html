@@ -1,0 +1,48 @@
+<section class="page-shell">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">{{ management ? 'Panel del proveedor' : 'Tu viaje' }}</p>
+      <h1>{{ management ? 'Solicitudes recibidas' : 'Mis reservas' }}</h1>
+      <p>{{ management ? 'Responde a las solicitudes de tus servicios.' : 'Consulta o cancela solicitudes que sigan pendientes.' }}</p>
+    </div>
+  </div>
+  @if (errorMessage) {
+    <p class="alert" role="alert">{{ errorMessage }}</p>
+  }
+  @if (loading) {
+    <p class="status">Cargando solicitudes…</p>
+  } @else if (reservations.length) {
+    <div class="reservation-list">
+      @for (reservation of reservations; track reservation.id) {
+        <article class="reservation-card">
+          <div class="reservation-card__heading">
+            <div>
+              <p class="eyebrow">{{ management ? reservation.turistaNombre : reservation.servicioNombre }}</p>
+              <h2>{{ reservation.fecha }}</h2>
+            </div>
+            <span class="status-badge" [class.status-badge--pending]="reservation.estado === 'PENDIENTE'">
+              {{ reservation.estado }}
+            </span>
+          </div>
+          <p>{{ reservation.cantidadPersonas }} persona(s)</p>
+          @if (management) {
+            <p>Servicio: {{ reservation.servicioNombre }}</p>
+            <p>Contacto del turista: {{ reservation.turistaEmail }}</p>
+          }
+          @if (reservation.estado === 'PENDIENTE') {
+            <footer>
+              @if (management) {
+                <button class="primary-button" type="button" (click)="decide(reservation.id, 'CONFIRMADA')">Confirmar</button>
+                <button class="danger-button" type="button" (click)="decide(reservation.id, 'RECHAZADA')">Rechazar</button>
+              } @else {
+                <button class="danger-button" type="button" (click)="cancel(reservation.id)">Cancelar solicitud</button>
+              }
+            </footer>
+          }
+        </article>
+      }
+    </div>
+  } @else {
+    <p class="empty-state">{{ management ? 'No tienes solicitudes para tus servicios.' : 'Aún no tienes solicitudes de reserva.' }}</p>
+  }
+</section>

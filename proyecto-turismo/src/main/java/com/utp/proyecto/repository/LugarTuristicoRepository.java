@@ -10,6 +10,8 @@ import java.util.List;
 
 @Repository
 public interface LugarTuristicoRepository extends JpaRepository<LugarTuristico, Long> {
+    List<LugarTuristico> findByPropietario_Id(Long propietarioId);
+
     @Query("""
             SELECT lugar
             FROM LugarTuristico lugar

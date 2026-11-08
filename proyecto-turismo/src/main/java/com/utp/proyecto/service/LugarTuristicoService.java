@@ -18,7 +18,13 @@ public class LugarTuristicoService {
     }
 
     public List<LugarTuristico> listarLugares() {
-        return lugares.findAll().stream().filter(LugarTuristico::getActivo).toList();
+        return lugares.findAll().stream()
+                .filter(lugar -> Boolean.TRUE.equals(lugar.getActivo()))
+                .toList();
+    }
+
+    public List<LugarTuristico> listarLugaresDelPropietario(Long propietarioId) {
+        return lugares.findByPropietario_Id(propietarioId);
     }
 
     public LugarTuristico buscarLugar(Long id) {

@@ -30,6 +30,10 @@ public class ServicioTuristicoService {
         return servicios.listarActivos();
     }
 
+    public List<ServicioTuristico> listarServiciosDelCreador(Long creadorId) {
+        return servicios.findByCreador_Id(creadorId);
+    }
+
     public ServicioTuristico buscarServicio(Long id) {
         return servicios.findById(id).orElse(null);
     }
