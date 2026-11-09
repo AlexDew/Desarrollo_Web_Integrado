@@ -89,6 +89,12 @@ footer {
   background: $color-danger;
 }
 
+.primary-button:disabled,
+.danger-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 .alert,
 .empty-state {
   padding: 1rem;

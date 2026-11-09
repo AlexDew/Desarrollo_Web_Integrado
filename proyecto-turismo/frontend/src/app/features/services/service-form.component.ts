@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiErrorService } from '../../core/services/api-error.service';
@@ -19,20 +19,26 @@ export class ServiceFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   readonly form = this.fb.group({
-    nombre: ['', [Validators.required, Validators.maxLength(150)]],
-    tipo: ['', [Validators.required, Validators.maxLength(60)]],
-    descripcion: ['', [Validators.required, Validators.maxLength(2000)]],
-    horarios: ['', [Validators.required, Validators.maxLength(255)]],
-    precio: [0, [Validators.required, Validators.min(0)]],
-    ruta: ['', [Validators.required, Validators.maxLength(255)]],
-    contacto: ['', [Validators.required, Validators.maxLength(180)]],
+    nombre: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(150)]],
+    tipo: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(60)]],
+    descripcion: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(2000)]],
+    horarios: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(255)]],
+    precio: [0, [
+      Validators.required,
+      Validators.min(0),
+      Validators.max(99_999_999.99),
+      Validators.pattern(/^\d+(\.\d{1,2})?$/),
+    ]],
+    ruta: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(255)]],
+    contacto: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(180)]],
     aceptaReservas: [false],
   });
-  serverErrors: Record<string, string> = {};
-  errorMessage = '';
-  submitting = false;
+  readonly serverErrors = signal<Record<string, string>>({});
+  readonly errorMessage = signal('');
+  readonly submitting = signal(false);
   serviceId: number | null = null;
-  loading = false;
+  readonly loading = signal(false);
+  readonly loadFailed = signal(false);
 
   get editing(): boolean {
     return this.serviceId !== null;
@@ -44,51 +50,56 @@ export class ServiceFormComponent implements OnInit {
 
     this.serviceId = Number(value);
     if (!Number.isInteger(this.serviceId) || this.serviceId < 1) {
-      this.errorMessage = 'El identificador del servicio no es válido.';
+      this.errorMessage.set('El identificador del servicio no es válido.');
+      this.loadFailed.set(true);
       return;
     }
 
-    this.loading = true;
+    this.loading.set(true);
     this.api.listManaged().subscribe({
       next: (services) => {
         const service = services.find((item) => item.id === this.serviceId);
         if (!service) {
-          this.errorMessage = 'No se encontró un servicio tuyo con ese identificador.';
+          this.errorMessage.set('No se encontró un servicio tuyo con ese identificador.');
+          this.loadFailed.set(true);
         } else {
           this.form.patchValue(service);
         }
-        this.loading = false;
+        this.loading.set(false);
       },
       error: (error: unknown) => {
-        this.errorMessage = this.errors.parse(error).message;
-        this.loading = false;
+        this.errorMessage.set(this.errors.parse(error).message);
+        this.loadFailed.set(true);
+        this.loading.set(false);
       },
     });
   }
 
   submit(): void {
+    if (this.loading() || this.loadFailed()) return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.errorMessage.set('Ingrese datos válidos antes de publicar el servicio.');
       return;
     }
 
     const payload: ServicePayload = this.form.getRawValue();
-    this.serverErrors = {};
-    this.errorMessage = '';
-    this.submitting = true;
+    this.serverErrors.set({});
+    this.errorMessage.set('');
+    this.submitting.set(true);
     const request = this.serviceId === null
       ? this.api.create(payload)
       : this.api.update(this.serviceId, payload);
     request.subscribe({
       next: () => {
-        this.submitting = false;
+        this.submitting.set(false);
         void this.router.navigate(['/gestion/servicios']);
       },
       error: (error: unknown) => {
-        this.submitting = false;
+        this.submitting.set(false);
         const parsed = this.errors.parse(error);
-        this.serverErrors = parsed.fields;
-        this.errorMessage = parsed.message;
+        this.serverErrors.set(parsed.fields);
+        this.errorMessage.set(parsed.message);
       },
     });
   }

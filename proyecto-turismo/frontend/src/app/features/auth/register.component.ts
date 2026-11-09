@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ApiErrorService } from '../../core/services/api-error.service';
@@ -17,33 +17,34 @@ export class RegisterComponent {
   private readonly router = inject(Router);
 
   readonly form = this.fb.group({
-    nombre: ['', [Validators.required, Validators.maxLength(120)]],
+    nombre: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(120)]],
     email: ['', [Validators.required, Validators.email, Validators.maxLength(180)]],
     password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(72)]],
   });
-  serverErrors: Record<string, string> = {};
-  errorMessage = '';
-  submitting = false;
+  readonly serverErrors = signal<Record<string, string>>({});
+  readonly errorMessage = signal('');
+  readonly submitting = signal(false);
 
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.errorMessage.set('Ingrese datos válidos antes de crear la cuenta.');
       return;
     }
 
-    this.serverErrors = {};
-    this.errorMessage = '';
-    this.submitting = true;
+    this.serverErrors.set({});
+    this.errorMessage.set('');
+    this.submitting.set(true);
     this.auth.register(this.form.getRawValue()).subscribe({
       next: () => {
-        this.submitting = false;
+        this.submitting.set(false);
         void this.router.navigate(['/']);
       },
       error: (error: unknown) => {
-        this.submitting = false;
+        this.submitting.set(false);
         const parsed = this.errors.parse(error);
-        this.serverErrors = parsed.fields;
-        this.errorMessage = parsed.message;
+        this.serverErrors.set(parsed.fields);
+        this.errorMessage.set(parsed.message);
       },
     });
   }

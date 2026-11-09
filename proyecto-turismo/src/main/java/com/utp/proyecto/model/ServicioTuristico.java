@@ -14,6 +14,7 @@ import com.utp.proyecto.validation.ValidacionSolicitud;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Digits;
 
 import java.math.BigDecimal;
 
@@ -37,6 +38,7 @@ public class ServicioTuristico {
     private String horarios;
     @NotNull(groups = ValidacionSolicitud.class)
     @PositiveOrZero(groups = ValidacionSolicitud.class)
+    @Digits(integer = 8, fraction = 2, groups = ValidacionSolicitud.class)
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal precio;
     @NotBlank(groups = ValidacionSolicitud.class)

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiErrorService } from '../../core/services/api-error.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -17,10 +17,10 @@ export class RequestRoleComponent {
   readonly form = this.fb.group({
     rol: this.fb.control<'GUIA' | 'PROPIETARIO'>('GUIA', Validators.required),
   });
-  errorMessage = '';
-  successMessage = '';
-  serverErrors: Record<string, string> = {};
-  submitting = false;
+  readonly errorMessage = signal('');
+  readonly successMessage = signal('');
+  readonly serverErrors = signal<Record<string, string>>({});
+  readonly submitting = signal(false);
 
   submit(): void {
     if (this.form.invalid) {
@@ -28,20 +28,20 @@ export class RequestRoleComponent {
       return;
     }
 
-    this.errorMessage = '';
-    this.successMessage = '';
-    this.serverErrors = {};
-    this.submitting = true;
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    this.serverErrors.set({});
+    this.submitting.set(true);
     this.auth.addRole(this.form.controls.rol.value).subscribe({
       next: () => {
-        this.submitting = false;
-        this.successMessage = 'El rol se añadió a tu cuenta.';
+        this.submitting.set(false);
+        this.successMessage.set('El rol se añadió a tu cuenta.');
       },
       error: (error: unknown) => {
-        this.submitting = false;
+        this.submitting.set(false);
         const parsed = this.errors.parse(error);
-        this.serverErrors = parsed.fields;
-        this.errorMessage = parsed.message;
+        this.serverErrors.set(parsed.fields);
+        this.errorMessage.set(parsed.message);
       },
     });
   }

@@ -3,20 +3,20 @@
     <p class="eyebrow">Tu cuenta</p>
     <h1>Solicitar un rol de proveedor</h1>
     <p>El rol se agregará a tu cuenta y conservarás el de turista.</p>
-    @if (errorMessage) {
-      <p class="alert" role="alert">{{ errorMessage }}</p>
+    @if (errorMessage()) {
+      <p class="alert" role="alert">{{ errorMessage() }}</p>
     }
-    @if (successMessage) {
-      <p class="success" role="status">{{ successMessage }}</p>
+    @if (successMessage()) {
+      <p class="success" role="status">{{ successMessage() }}</p>
     }
     <label for="rol">Rol</label>
     <select id="rol" formControlName="rol">
       <option value="GUIA">Guía</option>
       <option value="PROPIETARIO">Propietario de un lugar</option>
     </select>
-    <app-field-error [control]="form.controls.rol" [serverError]="serverErrors['rol']" />
-    <button class="primary-button" type="submit" [disabled]="submitting">
-      {{ submitting ? 'Enviando…' : 'Añadir rol' }}
+    <app-field-error [control]="form.controls.rol" [serverError]="serverErrors()['rol']" />
+    <button class="primary-button" type="submit" [disabled]="submitting()">
+      {{ submitting() ? 'Enviando…' : 'Añadir rol' }}
     </button>
   </form>
 </section>

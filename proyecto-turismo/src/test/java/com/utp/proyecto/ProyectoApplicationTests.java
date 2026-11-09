@@ -165,6 +165,42 @@ class ProyectoApplicationTests {
     }
 
     @Test
+    void rutaDeCreacionRechazaPrecioFueraDePrecisionDecimal() throws Exception {
+        String token = crearUsuarioConRol("guia-precio-limite", Rol.GUIA);
+        String payload = """
+                {
+                  "nombre": "Servicio con precio inválido",
+                  "tipo": "guia",
+                  "descripcion": "Prueba de límites de precio",
+                  "horarios": "Todos los días",
+                  "precio": %s,
+                  "ruta": "Piura",
+                  "contacto": "contacto@example.test",
+                  "aceptaReservas": false
+                }
+                """;
+
+        mockMvc.perform(post("/api/servicios")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(payload.formatted("100000000.00")))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(post("/api/servicios")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(payload.formatted("1.239")))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(post("/api/servicios")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(payload.formatted("99999999.99")))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.precio").value(99999999.99));
+    }
+
+    @Test
     void rutasDeLugaresYEstadisticasMantienenCompatibilidad() throws Exception {
         String lugar = """
                 {

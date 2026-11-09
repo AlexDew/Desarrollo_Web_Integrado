@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ApiErrorService } from '../../core/services/api-error.service';
 import { ServicesApiService } from '../../core/services/services-api.service';
@@ -14,10 +14,12 @@ export class ServicesListComponent implements OnInit {
   private readonly api = inject(ServicesApiService);
   private readonly errors = inject(ApiErrorService);
   private readonly route = inject(ActivatedRoute);
+
   management = false;
-  services: TouristService[] = [];
-  loading = true;
-  errorMessage = '';
+  readonly services = signal<TouristService[]>([]);
+  readonly loading = signal(true);
+  readonly errorMessage = signal('');
+  readonly deletingId = signal<number | null>(null);
 
   ngOnInit(): void {
     this.management = this.route.snapshot.data['management'] === true;
@@ -25,27 +27,33 @@ export class ServicesListComponent implements OnInit {
   }
 
   load(): void {
-    this.loading = true;
-    this.errorMessage = '';
+    this.loading.set(true);
+    this.errorMessage.set('');
     const request = this.management ? this.api.listManaged() : this.api.listPublic();
     request.subscribe({
       next: (services) => {
-        this.services = services;
-        this.loading = false;
+        this.services.set(services);
+        this.loading.set(false);
       },
       error: (error: unknown) => {
-        this.errorMessage = this.errors.parse(error).message;
-        this.loading = false;
+        this.errorMessage.set(this.errors.parse(error).message);
+        this.loading.set(false);
       },
     });
   }
 
   remove(id: number): void {
+    if (this.deletingId() !== null) return;
     if (!window.confirm('¿Eliminar este servicio?')) return;
+    this.deletingId.set(id);
     this.api.delete(id).subscribe({
-      next: () => this.load(),
+      next: () => {
+        this.deletingId.set(null);
+        this.load();
+      },
       error: (error: unknown) => {
-        this.errorMessage = this.errors.parse(error).message;
+        this.deletingId.set(null);
+        this.errorMessage.set(this.errors.parse(error).message);
       },
     });
   }

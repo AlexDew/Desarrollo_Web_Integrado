@@ -24,7 +24,7 @@ public class LugarTuristicoService {
     }
 
     public List<LugarTuristico> listarLugaresDelPropietario(Long propietarioId) {
-        return lugares.findByPropietario_Id(propietarioId);
+        return lugares.findByPropietario_IdAndActivoTrue(propietarioId);
     }
 
     public LugarTuristico buscarLugar(Long id) {

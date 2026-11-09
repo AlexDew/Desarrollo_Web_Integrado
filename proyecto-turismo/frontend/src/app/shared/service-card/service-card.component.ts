@@ -12,5 +12,6 @@ import { TouristService } from '../../core/models/service.model';
 export class ServiceCardComponent {
   @Input({ required: true }) servicio!: TouristService;
   @Input() management = false;
+  @Input() deleting = false;
   @Output() deleteService = new EventEmitter<number>();
 }

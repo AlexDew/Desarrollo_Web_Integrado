@@ -6,14 +6,14 @@
       <p>{{ management ? 'Responde a las solicitudes de tus servicios.' : 'Consulta o cancela solicitudes que sigan pendientes.' }}</p>
     </div>
   </div>
-  @if (errorMessage) {
-    <p class="alert" role="alert">{{ errorMessage }}</p>
+  @if (errorMessage()) {
+    <p class="alert" role="alert">{{ errorMessage() }}</p>
   }
-  @if (loading) {
+  @if (loading()) {
     <p class="status">Cargando solicitudes…</p>
-  } @else if (reservations.length) {
+  } @else if (reservations().length) {
     <div class="reservation-list">
-      @for (reservation of reservations; track reservation.id) {
+      @for (reservation of reservations(); track reservation.id) {
         <article class="reservation-card">
           <div class="reservation-card__heading">
             <div>
@@ -32,10 +32,10 @@
           @if (reservation.estado === 'PENDIENTE') {
             <footer>
               @if (management) {
-                <button class="primary-button" type="button" (click)="decide(reservation.id, 'CONFIRMADA')">Confirmar</button>
-                <button class="danger-button" type="button" (click)="decide(reservation.id, 'RECHAZADA')">Rechazar</button>
+                <button class="primary-button" type="button" [disabled]="actionInProgress()" (click)="decide(reservation.id, 'CONFIRMADA')">Confirmar</button>
+                <button class="danger-button" type="button" [disabled]="actionInProgress()" (click)="decide(reservation.id, 'RECHAZADA')">Rechazar</button>
               } @else {
-                <button class="danger-button" type="button" (click)="cancel(reservation.id)">Cancelar solicitud</button>
+                <button class="danger-button" type="button" [disabled]="actionInProgress()" (click)="cancel(reservation.id)">Cancelar solicitud</button>
               }
             </footer>
           }

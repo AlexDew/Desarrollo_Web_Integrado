@@ -1,29 +1,29 @@
 <header class="navbar">
   <a class="brand" routerLink="/" aria-label="Turismo, inicio">
     <span class="brand__mark">T</span>
-    <span>Rutas del Norte</span>
+    <span>Rutas de Mi Piura</span>
   </a>
   <nav aria-label="Navegación principal">
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Servicios</a>
     <a routerLink="/lugares" routerLinkActive="active">Lugares</a>
     @if (auth.isAuthenticated()) {
-      @if (auth.hasAnyRole(['GUIA', 'PROPIETARIO'])) {
-        <a routerLink="/gestion/servicios" routerLinkActive="active">Mis servicios</a>
-      }
-      @if (auth.hasAnyRole(['PROPIETARIO'])) {
-        <a routerLink="/gestion/lugares" routerLinkActive="active">Mis lugares</a>
-      }
-      @if (auth.hasAnyRole(['TURISTA'])) {
-        <a routerLink="/reservas" routerLinkActive="active">Mis reservas</a>
-      }
-      <a routerLink="/cuenta/roles" routerLinkActive="active">Solicitar rol</a>
-      @if (auth.hasAnyRole(['GUIA', 'PROPIETARIO'])) {
-        <a routerLink="/gestion/reservas" routerLinkActive="active">Solicitudes recibidas</a>
-      }
-      <button class="nav-button" type="button" (click)="logout()">Cerrar sesión</button>
+    @if (auth.hasAnyRole(['GUIA', 'PROPIETARIO'])) {
+    <a routerLink="/gestion/servicios" routerLinkActive="active">Mis servicios</a>
+    }
+    @if (auth.hasAnyRole(['PROPIETARIO'])) {
+    <a routerLink="/gestion/lugares" routerLinkActive="active">Mis lugares</a>
+    }
+    @if (auth.hasAnyRole(['TURISTA'])) {
+    <a routerLink="/reservas" routerLinkActive="active">Mis reservas</a>
+    }
+    <a routerLink="/cuenta/roles" routerLinkActive="active">Solicitar rol</a>
+    @if (auth.hasAnyRole(['GUIA', 'PROPIETARIO'])) {
+    <a routerLink="/gestion/reservas" routerLinkActive="active">Solicitudes recibidas</a>
+    }
+    <button class="nav-button" type="button" (click)="logout()">Cerrar sesión</button>
     } @else {
-      <a routerLink="/login" routerLinkActive="active">Iniciar sesión</a>
-      <a class="signup-link" routerLink="/registro">Crear cuenta</a>
+    <a routerLink="/login" routerLinkActive="active">Iniciar sesión</a>
+    <a class="signup-link" routerLink="/registro">Crear cuenta</a>
     }
   </nav>
 </header>

@@ -10,7 +10,9 @@
   <footer>
     @if (management) {
       <a class="button button--quiet" [routerLink]="['/gestion/servicios', servicio.id, 'editar']">Editar</a>
-      <button class="button button--danger" type="button" (click)="deleteService.emit(servicio.id)">Eliminar</button>
+      <button class="button button--danger" type="button" [disabled]="deleting" (click)="deleteService.emit(servicio.id)">
+        {{ deleting ? 'Eliminando…' : 'Eliminar' }}
+      </button>
     } @else if (servicio.aceptaReservas) {
       <a class="button" [routerLink]="['/reservas/nueva', servicio.id]">Solicitar reserva</a>
     }

@@ -1,9 +1,18 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiErrorService } from '../../core/services/api-error.service';
 import { ReservationsApiService } from '../../core/services/reservations-api.service';
 import { FieldErrorComponent } from '../../shared/field-error/field-error.component';
+
+function minimumDateValidator(minimumDate: string) {
+  return (control: { value: unknown }) => {
+    const value = control.value;
+    return typeof value === 'string' && value !== '' && value < minimumDate
+      ? { minDate: true }
+      : null;
+  };
+}
 
 @Component({
   imports: [ReactiveFormsModule, RouterLink, FieldErrorComponent],
@@ -17,42 +26,55 @@ export class ReservationFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
+  readonly minimumDate = this.tomorrow();
   readonly form = this.fb.group({
-    fecha: ['', Validators.required],
-    cantidadPersonas: [1, [Validators.required, Validators.min(1)]],
+    fecha: ['', [
+      Validators.required,
+      Validators.pattern(/^\d{4}-\d{2}-\d{2}$/),
+      minimumDateValidator(this.minimumDate),
+    ]],
+    cantidadPersonas: [1, [
+      Validators.required,
+      Validators.min(1),
+      Validators.max(2_147_483_647),
+      Validators.pattern(/^\d+$/),
+    ]],
   });
   serviceId = 0;
-  readonly minimumDate = this.tomorrow();
-  serverErrors: Record<string, string> = {};
-  errorMessage = '';
-  submitting = false;
+  readonly serverErrors = signal<Record<string, string>>({});
+  readonly errorMessage = signal('');
+  readonly submitting = signal(false);
 
   ngOnInit(): void {
     this.serviceId = Number(this.route.snapshot.paramMap.get('servicioId'));
     if (!Number.isInteger(this.serviceId) || this.serviceId < 1) {
-      this.errorMessage = 'El servicio seleccionado no es válido.';
+      this.errorMessage.set('El servicio seleccionado no es válido.');
     }
   }
 
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.errorMessage.set('Ingrese datos válidos antes de enviar la solicitud.');
+      return;
+    }
+    if (this.serviceId < 1) {
       return;
     }
 
-    this.serverErrors = {};
-    this.errorMessage = '';
-    this.submitting = true;
+    this.serverErrors.set({});
+    this.errorMessage.set('');
+    this.submitting.set(true);
     this.api.create(this.serviceId, this.form.getRawValue()).subscribe({
       next: () => {
-        this.submitting = false;
+        this.submitting.set(false);
         void this.router.navigate(['/reservas']);
       },
       error: (error: unknown) => {
-        this.submitting = false;
+        this.submitting.set(false);
         const parsed = this.errors.parse(error);
-        this.serverErrors = parsed.fields;
-        this.errorMessage = parsed.message;
+        this.serverErrors.set(parsed.fields);
+        this.errorMessage.set(parsed.message);
       },
     });
   }
