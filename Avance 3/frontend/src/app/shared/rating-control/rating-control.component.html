@@ -1,0 +1,16 @@
+<div class="rating-control">
+  <p>Calificación: {{ calificacion && calificacion > 0 ? calificacion : 'Sin calificaciones' }}</p>
+  <label>
+    Tu calificación
+    <select [value]="selected" (change)="updateSelection($event)">
+      <option value="5">5</option>
+      <option value="4">4</option>
+      <option value="3">3</option>
+      <option value="2">2</option>
+      <option value="1">1</option>
+    </select>
+  </label>
+  <button type="button" [disabled]="pending" (click)="rate.emit(selected)">
+    {{ pending ? 'Guardando…' : 'Calificar' }}
+  </button>
+</div>

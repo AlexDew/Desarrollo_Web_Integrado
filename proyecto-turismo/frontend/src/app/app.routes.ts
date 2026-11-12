@@ -31,44 +31,53 @@ export const routes: Routes = [
   {
     path: 'gestion/lugares',
     canActivate: [authGuard, roleGuard],
-    data: { management: true, roles: ['PROPIETARIO'] },
+    data: { management: true, roles: ['GUIA'] },
     loadComponent: () =>
       import('./features/places/places-list.component').then((module) => module.PlacesListComponent),
   },
   {
     path: 'gestion/lugares/nuevo',
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['PROPIETARIO'] },
+    data: { roles: ['GUIA'] },
     loadComponent: () =>
       import('./features/places/place-form.component').then((module) => module.PlaceFormComponent),
   },
   {
     path: 'gestion/lugares/:id/editar',
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['PROPIETARIO'] },
+    data: { roles: ['GUIA'] },
     loadComponent: () =>
       import('./features/places/place-form.component').then((module) => module.PlaceFormComponent),
   },
   {
     path: 'gestion/servicios',
     canActivate: [authGuard, roleGuard],
-    data: { management: true, roles: ['GUIA', 'PROPIETARIO'] },
+    data: { management: true, roles: ['PROPIETARIO'] },
     loadComponent: () =>
       import('./features/services/services-list.component').then((module) => module.ServicesListComponent),
   },
   {
     path: 'gestion/servicios/nuevo',
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['GUIA', 'PROPIETARIO'] },
+    data: { roles: ['PROPIETARIO'] },
     loadComponent: () =>
       import('./features/services/service-form.component').then((module) => module.ServiceFormComponent),
   },
   {
     path: 'gestion/servicios/:id/editar',
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['GUIA', 'PROPIETARIO'] },
+    data: { roles: ['PROPIETARIO'] },
     loadComponent: () =>
       import('./features/services/service-form.component').then((module) => module.ServiceFormComponent),
+  },
+  {
+    path: 'reservas/nueva/lugar/:lugarId',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['TURISTA'] },
+    loadComponent: () =>
+      import('./features/reservations/reservation-form.component').then(
+        (module) => module.ReservationFormComponent,
+      ),
   },
   {
     path: 'reservas/nueva/:servicioId',

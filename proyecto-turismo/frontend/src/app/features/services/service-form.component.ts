@@ -20,7 +20,7 @@ export class ServiceFormComponent implements OnInit {
 
   readonly form = this.fb.group({
     nombre: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(150)]],
-    tipo: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(60)]],
+    tipo: ['', [Validators.required, Validators.pattern(/^(guia|hotel|restaurante|tienda)$/i)]],
     descripcion: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(2000)]],
     horarios: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(255)]],
     precio: [0, [
@@ -30,8 +30,8 @@ export class ServiceFormComponent implements OnInit {
       Validators.pattern(/^\d+(\.\d{1,2})?$/),
     ]],
     ruta: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(255)]],
-    contacto: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(180)]],
-    aceptaReservas: [false],
+    contacto: ['', [Validators.required, Validators.pattern(/^\d{9}$/)]],
+    aceptaReservas: [true],
   });
   readonly serverErrors = signal<Record<string, string>>({});
   readonly errorMessage = signal('');
@@ -63,7 +63,7 @@ export class ServiceFormComponent implements OnInit {
           this.errorMessage.set('No se encontró un servicio tuyo con ese identificador.');
           this.loadFailed.set(true);
         } else {
-          this.form.patchValue(service);
+          this.form.patchValue({ ...service, tipo: service.tipo.toLowerCase(), aceptaReservas: true });
         }
         this.loading.set(false);
       },

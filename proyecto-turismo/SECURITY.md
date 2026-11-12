@@ -50,13 +50,27 @@ aprobación administrativa de quienes solicitan `GUIA` o `PROPIETARIO`.
 | --- | --- |
 | Público | Registro/inicio de sesión; consultas GET de `/api/lugares/**`, `/api/turista/lugares/**` y `/api/turista/servicios/**` |
 | `TURISTA` | Registrar visitas/calificaciones, solicitar reservas, consultar las propias y cancelar solicitudes pendientes |
-| `PROPIETARIO` | Crear, editar y eliminar lugares |
-| `PROPIETARIO` o `GUIA` | Crear, editar y eliminar servicios; consultar estadísticas, reservas de sus servicios y decidir solicitudes |
+| `GUIA` | Crear, editar, eliminar y listar sus lugares; consultar y responder reservas de sus lugares |
+| `PROPIETARIO` | Crear, editar y eliminar sus servicios; consultar estadísticas y gestionar reservas de sus servicios |
 
-La edición y eliminación de lugares y servicios solo se permite a quien creó el
-registro. Los catálogos importados desde JSON no tienen propietario/creador y, por
+Los códigos internos de rol se conservan; en la interfaz `PROPIETARIO` se muestra
+como «Propietario de un servicio». Una cuenta que tenga ambos roles reúne ambos
+conjuntos de permisos. La edición y eliminación de lugares y servicios solo se
+permite a quien creó el registro. Los catálogos importados desde JSON no tienen propietario/creador y, por
 tanto, no se pueden editar hasta que se les asigne uno ni recibir reservas hasta
 que tengan un creador responsable.
+
+Los lugares solo admiten los tipos `playa` y `cultural`, y su contacto debe ser un
+teléfono de nueve dígitos. Los servicios ofrecen los tipos guía, hotel, restaurante
+y tienda, también con teléfono de nueve dígitos. Los teléfonos comparables se
+normalizan al validar lugares y servicios para evitar duplicados entre ambos
+recursos. Los datos históricos no se modifican automáticamente.
+
+Todos los lugares y servicios activos permiten solicitar reservas. Para una base
+SQL Server existente, aplique [la migración de reservas](./database/migrations/20261110_reservas_lugares_y_activacion.sql)
+antes de iniciar la aplicación. Los servicios y lugares importados sin creador
+aceptan solicitudes, pero no pueden asignarse a una bandeja de proveedor hasta
+que se les asigne un responsable.
 
 ## Solicitudes de reserva
 
@@ -74,7 +88,7 @@ Content-Type: application/json
 
 La solicitud se crea en estado `PENDIENTE`. El turista puede consultar sus
 solicitudes en `GET /api/turista/reservas` y cancelar una pendiente con
-`DELETE /api/turista/reservas/{reservaId}`. El propietario o guía responsable
+`DELETE /api/turista/reservas/{reservaId}`. El propietario responsable
 consulta las solicitudes de sus propios servicios con `GET /api/servicios/reservas`
 y actualiza una pendiente mediante
 `PATCH /api/servicios/reservas/{reservaId}/estado`, enviando

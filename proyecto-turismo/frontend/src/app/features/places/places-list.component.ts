@@ -4,9 +4,10 @@ import { ApiErrorService } from '../../core/services/api-error.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PlacesApiService } from '../../core/services/places-api.service';
 import { TouristPlace } from '../../core/models/place.model';
+import { RatingControlComponent } from '../../shared/rating-control/rating-control.component';
 
 @Component({
-  imports: [RouterLink],
+  imports: [RouterLink, RatingControlComponent],
   templateUrl: './places-list.component.html',
   styleUrl: './places-list.component.scss',
 })
@@ -21,6 +22,7 @@ export class PlacesListComponent implements OnInit {
   readonly loading = signal(true);
   readonly errorMessage = signal('');
   readonly deletingId = signal<number | null>(null);
+  readonly ratingId = signal<number | null>(null);
 
   ngOnInit(): void {
     this.management = this.route.snapshot.data['management'] === true;
@@ -55,6 +57,22 @@ export class PlacesListComponent implements OnInit {
       error: (error: unknown) => {
         this.deletingId.set(null);
         this.errorMessage.set(this.errors.parse(error).message);
+      },
+    });
+  }
+
+  rate(id: number, value: number): void {
+    if (this.ratingId() !== null) return;
+    this.errorMessage.set('');
+    this.ratingId.set(id);
+    this.api.rate(id, value).subscribe({
+      next: (updated) => {
+        this.places.update((items) => items.map((item) => item.id === id ? updated : item));
+        this.ratingId.set(null);
+      },
+      error: (error: unknown) => {
+        this.errorMessage.set(this.errors.parse(error).message);
+        this.ratingId.set(null);
       },
     });
   }

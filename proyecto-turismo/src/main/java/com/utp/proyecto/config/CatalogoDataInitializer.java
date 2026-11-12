@@ -54,7 +54,10 @@ public class CatalogoDataInitializer implements ApplicationRunner {
                 new File("data/servicios-turisticos.json"),
                 "servicios-turisticos.json",
                 new TypeReference<>() {});
-        datos.forEach(servicio -> servicio.setId(null));
+        datos.forEach(servicio -> {
+            servicio.setId(null);
+            servicio.setAceptaReservas(true);
+        });
         servicios.saveAll(datos);
     }
 

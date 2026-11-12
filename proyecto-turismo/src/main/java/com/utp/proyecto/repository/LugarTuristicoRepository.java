@@ -10,7 +10,14 @@ import java.util.List;
 
 @Repository
 public interface LugarTuristicoRepository extends JpaRepository<LugarTuristico, Long> {
-List<LugarTuristico> findByPropietario_IdAndActivoTrue(Long propietarioId);
+    List<LugarTuristico> findByPropietario_IdAndActivoTrue(Long propietarioId);
+
+    @Query("""
+            SELECT lugar.id AS id, lugar.contacto AS contacto
+            FROM LugarTuristico lugar
+            """)
+    List<ContactoRegistrado> listarContactosRegistrados();
+
     @Query("""
             SELECT lugar
             FROM LugarTuristico lugar
@@ -34,6 +41,4 @@ List<LugarTuristico> findByPropietario_IdAndActivoTrue(Long propietarioId);
             ORDER BY lugar.visitantes DESC
             """)
     List<LugarTuristico> listarActivosMasVisitados();
-
-    
 }

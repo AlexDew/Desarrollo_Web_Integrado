@@ -25,13 +25,13 @@ describe('ServiceFormComponent price validation', () => {
     const form = fixture.componentInstance.form;
     form.patchValue({
       nombre: 'Servicio',
-      tipo: 'Guía',
+      tipo: 'guia',
       descripcion: 'Descripción',
       horarios: 'Todos los días',
       precio: 100_000_000,
       ruta: 'Piura',
-      contacto: 'guia@example.com',
-      aceptaReservas: false,
+      contacto: '987654321',
+      aceptaReservas: true,
     });
 
     fixture.componentInstance.submit();
@@ -53,13 +53,13 @@ describe('ServiceFormComponent price validation', () => {
     const fixture = TestBed.createComponent(ServiceFormComponent);
     fixture.componentInstance.form.patchValue({
       nombre: 'Servicio',
-      tipo: 'Guía',
+      tipo: 'guia',
       descripcion: 'Descripción',
       horarios: 'Todos los días',
       precio: 45.5,
       ruta: 'Piura',
-      contacto: 'guia@example.com',
-      aceptaReservas: false,
+      contacto: '987654321',
+      aceptaReservas: true,
     });
 
     fixture.componentInstance.submit();
@@ -74,5 +74,19 @@ describe('ServiceFormComponent price validation', () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]').textContent)
       .toContain('No se pudo guardar el servicio.');
     expect(fixture.nativeElement.querySelector('button').disabled).toBe(false);
+  });
+
+  it('requires a supported service type and a nine-digit contact', () => {
+    const form = TestBed.createComponent(ServiceFormComponent).componentInstance.form;
+
+    form.controls.tipo.setValue('otro');
+    form.controls.contacto.setValue('12345');
+    expect(form.controls.tipo.hasError('pattern')).toBe(true);
+    expect(form.controls.contacto.hasError('pattern')).toBe(true);
+
+    form.controls.tipo.setValue('restaurante');
+    form.controls.contacto.setValue('987654321');
+    expect(form.controls.tipo.valid).toBe(true);
+    expect(form.controls.contacto.valid).toBe(true);
   });
 });

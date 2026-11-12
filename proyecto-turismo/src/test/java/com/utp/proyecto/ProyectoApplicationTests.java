@@ -90,7 +90,8 @@ class ProyectoApplicationTests {
         assertThat(lugares.count()).isEqualTo(cantidadLugares);
         assertThat(servicios.count()).isEqualTo(cantidadServicios);
         assertThat(lugares.findAll()).allMatch(lugar -> lugar.getId() != null);
-        assertThat(servicios.findAll()).allMatch(servicio -> servicio.getId() != null);
+        assertThat(servicios.findAll()).allMatch(servicio -> servicio.getId() != null
+                && Boolean.TRUE.equals(servicio.getAceptaReservas()));
         assertThat(lugares.findAll()).allMatch(lugar -> lugar.getPropietario() == null);
         assertThat(servicios.findAll()).allMatch(servicio -> servicio.getCreador() == null);
     }
@@ -99,10 +100,10 @@ class ProyectoApplicationTests {
     @Transactional
     void persisteServicioConIdGeneradoYCreador() {
         Usuario guia = new Usuario();
-        guia.setNombre("Guía de prueba");
-        guia.setEmail("guia-prueba@example.test");
+        guia.setNombre("Propietario de prueba");
+        guia.setEmail("propietario-prueba@example.test");
         guia.setPasswordHash("hash-de-prueba");
-        guia.setRoles(Set.of(Rol.GUIA));
+        guia.setRoles(Set.of(Rol.PROPIETARIO));
         guia = usuarios.save(guia);
 
         ServicioTuristico servicio = new ServicioTuristico();
@@ -112,7 +113,7 @@ class ProyectoApplicationTests {
         servicio.setHorarios("Todos los días");
         servicio.setPrecio(new BigDecimal("75.50"));
         servicio.setRuta("Piura");
-        servicio.setContacto("guia@example.test");
+        servicio.setContacto("900000010");
         servicio.setAceptaReservas(true);
         servicio.setCreador(guia);
 
@@ -136,12 +137,12 @@ class ProyectoApplicationTests {
                   "horarios": "Todos los días",
                   "precio": 40.50,
                   "ruta": "Piura",
-                  "contacto": "contacto@example.test",
+                  "contacto": "900000011",
                   "aceptaReservas": true
                 }
                 """;
 
-        String token = crearUsuarioConRol("guia-servicios", Rol.GUIA);
+        String token = crearUsuarioConRol("propietario-servicios", Rol.PROPIETARIO);
         mockMvc.perform(post("/api/servicios")
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON)
@@ -165,8 +166,90 @@ class ProyectoApplicationTests {
     }
 
     @Test
+    void lugaresValidanCategoriaTelefonoYUnicidadEntreRecursos() throws Exception {
+        String tokenGuia = crearUsuarioConRol("guia-telefonos", Rol.GUIA);
+        String tokenPropietario = crearUsuarioConRol("propietario-telefonos", Rol.PROPIETARIO);
+        String lugar = """
+                {
+                  "nombre": "%s",
+                  "tipo": "%s",
+                  "descripcion": "Lugar para verificar la validación del teléfono",
+                  "direccion": "Piura",
+                  "horarios": "Todos los días",
+                  "contacto": "%s"
+                }
+                """;
+
+        String respuesta = mockMvc.perform(post("/api/lugares")
+                        .header("Authorization", "Bearer " + tokenGuia)
+                        .contentType(APPLICATION_JSON)
+                        .content(lugar.formatted("Playa con teléfono", "playa", "981234567")))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long lugarId = ((Number) JsonPath.read(respuesta, "$.id")).longValue();
+
+        mockMvc.perform(post("/api/lugares")
+                        .header("Authorization", "Bearer " + tokenGuia)
+                        .contentType(APPLICATION_JSON)
+                        .content(lugar.formatted("Tipo inválido", "naturaleza", "981234568")))
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/api/lugares")
+                        .header("Authorization", "Bearer " + tokenGuia)
+                        .contentType(APPLICATION_JSON)
+                        .content(lugar.formatted("Teléfono inválido", "cultural", "12345678")))
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/api/lugares")
+                        .header("Authorization", "Bearer " + tokenGuia)
+                        .contentType(APPLICATION_JSON)
+                        .content(lugar.formatted("Teléfono repetido", "cultural", "981234567")))
+                .andExpect(status().isConflict());
+        mockMvc.perform(put("/api/lugares/{id}", lugarId)
+                        .header("Authorization", "Bearer " + tokenGuia)
+                        .contentType(APPLICATION_JSON)
+                        .content(lugar.formatted("Playa actualizada", "playa", "981234567")))
+                .andExpect(status().isOk());
+
+        String servicio = """
+                {
+                  "nombre": "Servicio con teléfono de lugar",
+                  "tipo": "guia",
+                  "descripcion": "Servicio para verificar unicidad global",
+                  "horarios": "Todos los días",
+                  "precio": 15.00,
+                  "ruta": "Piura",
+                  "contacto": "981234567",
+                  "aceptaReservas": false
+                }
+                """;
+        mockMvc.perform(post("/api/servicios")
+                        .header("Authorization", "Bearer " + tokenPropietario)
+                        .contentType(APPLICATION_JSON)
+                        .content(servicio))
+                .andExpect(status().isConflict());
+
+        String servicioPrimero = servicio.replace("981234567", "981234568");
+        String respuestaServicio = mockMvc.perform(post("/api/servicios")
+                        .header("Authorization", "Bearer " + tokenPropietario)
+                        .contentType(APPLICATION_JSON)
+                        .content(servicioPrimero))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long servicioId = ((Number) JsonPath.read(respuestaServicio, "$.id")).longValue();
+        mockMvc.perform(put("/api/servicios/{id}", servicioId)
+                        .header("Authorization", "Bearer " + tokenPropietario)
+                        .contentType(APPLICATION_JSON)
+                        .content(servicioPrimero))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/lugares")
+                        .header("Authorization", "Bearer " + tokenGuia)
+                        .contentType(APPLICATION_JSON)
+                        .content(lugar.formatted("Lugar con teléfono de servicio", "cultural", "981234568")))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void rutaDeCreacionRechazaPrecioFueraDePrecisionDecimal() throws Exception {
-        String token = crearUsuarioConRol("guia-precio-limite", Rol.GUIA);
+        String token = crearUsuarioConRol("propietario-precio-limite", Rol.PROPIETARIO);
         String payload = """
                 {
                   "nombre": "Servicio con precio inválido",
@@ -175,7 +258,7 @@ class ProyectoApplicationTests {
                   "horarios": "Todos los días",
                   "precio": %s,
                   "ruta": "Piura",
-                  "contacto": "contacto@example.test",
+                  "contacto": "900000012",
                   "aceptaReservas": false
                 }
                 """;
@@ -209,7 +292,7 @@ class ProyectoApplicationTests {
                   "descripcion": "Registro desde la ruta REST",
                   "direccion": "Centro de Piura",
                   "horarios": "Todos los días",
-                  "contacto": "contacto@example.test"
+                  "contacto": "900000001"
                 }
                 """;
 
@@ -217,22 +300,24 @@ class ProyectoApplicationTests {
                 .andExpect(status().isOk());
         mockMvc.perform(get("/api/lugares"))
                 .andExpect(status().isOk());
-        String token = crearUsuarioConRol("propietario-lugares", Rol.PROPIETARIO);
+        String tokenPropietario = crearUsuarioConRol("propietario-lugares", Rol.PROPIETARIO);
         mockMvc.perform(get("/api/estadisticas")
-                        .header("Authorization", "Bearer " + token))
+                        .header("Authorization", "Bearer " + tokenPropietario))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/api/servicios/estadisticas")
-                        .header("Authorization", "Bearer " + token))
+                        .header("Authorization", "Bearer " + tokenPropietario))
                 .andExpect(status().isOk());
+        String tokenGuia = crearUsuarioConRol("guia-lugares", Rol.GUIA);
         mockMvc.perform(post("/api/lugares")
-                        .header("Authorization", "Bearer " + token)
+                        .header("Authorization", "Bearer " + tokenGuia)
                         .contentType(APPLICATION_JSON)
                         .content(lugar))
                 .andExpect(status().isCreated());
         mockMvc.perform(post("/api/servicios/lugares")
-                        .header("Authorization", "Bearer " + token)
+                        .header("Authorization", "Bearer " + tokenGuia)
                         .contentType(APPLICATION_JSON)
-                        .content(lugar.replace("Lugar HTTP de prueba", "Lugar alias antiguo")))
+                        .content(lugar.replace("Lugar HTTP de prueba", "Lugar alias antiguo")
+                                .replace("900000001", "900000002")))
                 .andExpect(status().isCreated());
     }
 
@@ -246,7 +331,7 @@ class ProyectoApplicationTests {
                   "horarios": "Todos los días",
                   "precio": 40.50,
                   "ruta": "Piura",
-                  "contacto": "contacto@example.test",
+                  "contacto": "900000017",
                   "aceptaReservas": true
                 }
                 """;
@@ -281,13 +366,33 @@ class ProyectoApplicationTests {
                                   "descripcion": "Validación de permisos del alias",
                                   "direccion": "Piura",
                                   "horarios": "Todos los días",
-                                  "contacto": "contacto@example.test"
+                                  "contacto": "900000003"
+                                }
+                                """))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/servicios")
+                        .header("Authorization", "Bearer " + tokenGuia)
+                        .contentType(APPLICATION_JSON)
+                        .content(payloadServicio))
+                .andExpect(status().isForbidden());
+        String tokenPropietario = iniciarSesionConRol("propietario-seguridad", Rol.PROPIETARIO);
+        mockMvc.perform(post("/api/lugares")
+                        .header("Authorization", "Bearer " + tokenPropietario)
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "nombre": "Lugar no permitido a propietario",
+                                  "tipo": "playa",
+                                  "descripcion": "Validación del permiso por rol",
+                                  "direccion": "Piura",
+                                  "horarios": "Todos los días",
+                                  "contacto": "900000006"
                                 }
                                 """))
                 .andExpect(status().isForbidden());
-
         String respuesta = mockMvc.perform(post("/api/servicios")
-                        .header("Authorization", "Bearer " + tokenGuia)
+                        .header("Authorization", "Bearer " + tokenPropietario)
                         .contentType(APPLICATION_JSON)
                         .content(payloadServicio))
                 .andExpect(status().isCreated())
@@ -295,16 +400,20 @@ class ProyectoApplicationTests {
         Number idRespuesta = JsonPath.read(respuesta, "$.id");
         long servicioId = idRespuesta.longValue();
         ServicioTuristico guardado = servicios.findById(servicioId).orElseThrow();
-        assertThat(guardado.getCreador().getEmail()).contains("guia-seguridad");
+        assertThat(guardado.getCreador().getEmail()).contains("propietario-seguridad");
+        mockMvc.perform(patch("/api/servicios/{id}/calificacion", servicioId)
+                        .header("Authorization", "Bearer " + tokenPropietario)
+                        .param("valor", "4"))
+                .andExpect(status().isForbidden());
 
-        String tokenOtroGuia = iniciarSesionConRol("otro-guia-seguridad", Rol.GUIA);
+        String tokenOtroPropietario = iniciarSesionConRol("otro-propietario-seguridad", Rol.PROPIETARIO);
         mockMvc.perform(put("/api/servicios/{id}", servicioId)
-                        .header("Authorization", "Bearer " + tokenOtroGuia)
+                        .header("Authorization", "Bearer " + tokenOtroPropietario)
                         .contentType(APPLICATION_JSON)
                         .content(payloadServicio))
                 .andExpect(status().isNotFound());
 
-        assertThat(jwtService.obtenerSubject(tokenGuia)).contains("guia-seguridad");
+        assertThat(jwtService.obtenerSubject(tokenPropietario)).contains("propietario-seguridad");
     }
 
     @Test
@@ -348,7 +457,8 @@ class ProyectoApplicationTests {
                         .content("""
                                 {"fecha":"2099-07-10","cantidadPersonas":2}
                                 """))
-                .andExpect(status().isConflict());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.estado").value("PENDIENTE"));
         mockMvc.perform(get("/api/turista/reservas")
                         .header("Authorization", "Bearer " + tokenTurista))
                 .andExpect(status().isOk());
@@ -379,6 +489,80 @@ class ProyectoApplicationTests {
     }
 
     @Test
+    void turistaPuedeCalificarServiciosYLugaresYSePersisteLaCalificacion() throws Exception {
+            String tokenTurista = registrarUsuario("turista-califica");
+            long servicioId = servicios.listarActivos().get(0).getId();
+            long lugarId = lugares.findAll().get(0).getId();
+
+            mockMvc.perform(patch("/api/servicios/{id}/calificacion", servicioId)
+                            .header("Authorization", "Bearer " + tokenTurista)
+                            .param("valor", "4"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.calificacion").value(4.0));
+            mockMvc.perform(patch("/api/lugares/{id}/calificacion", lugarId)
+                            .header("Authorization", "Bearer " + tokenTurista)
+                            .param("valor", "3"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.calificacion").value(3.0));
+
+            assertThat(servicios.findById(servicioId).orElseThrow().getCalificacion()).isEqualTo(4.0);
+            assertThat(lugares.findById(lugarId).orElseThrow().getCalificacion()).isEqualTo(3.0);
+            mockMvc.perform(patch("/api/servicios/{id}/calificacion", servicioId)
+                            .header("Authorization", "Bearer " + tokenTurista)
+                            .param("valor", "6"))
+                    .andExpect(status().isBadRequest());
+        }
+
+    @Test
+    void turistaPuedeSolicitarReservaParaUnLugarPublicado() throws Exception {
+            String tokenGuia = crearUsuarioConRol("guia-lugar-reservable", Rol.GUIA);
+            String lugarJson = """
+                    {
+                      "nombre": "Lugar reservable",
+                      "tipo": "playa",
+                      "descripcion": "Lugar de prueba para reservas",
+                      "direccion": "Piura",
+                      "horarios": "Todos los días",
+                      "contacto": "900000007"
+                    }
+                    """;
+            String lugarResponse = mockMvc.perform(post("/api/lugares")
+                            .header("Authorization", "Bearer " + tokenGuia)
+                            .contentType(APPLICATION_JSON)
+                            .content(lugarJson))
+                    .andExpect(status().isCreated())
+                    .andReturn().getResponse().getContentAsString();
+            long lugarId = ((Number) JsonPath.read(lugarResponse, "$.id")).longValue();
+            String tokenTurista = registrarUsuario("turista-reserva-lugar");
+
+            String reservation = mockMvc.perform(post("/api/turista/lugares/{id}/reservas", lugarId)
+                            .header("Authorization", "Bearer " + tokenTurista)
+                            .contentType(APPLICATION_JSON)
+                            .content("{\"fecha\":\"2099-07-10\",\"cantidadPersonas\":2}"))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.lugarId").value(lugarId))
+                    .andExpect(jsonPath("$.lugarNombre").value("Lugar reservable"))
+                    .andExpect(jsonPath("$.servicioId").doesNotExist())
+                    .andReturn().getResponse().getContentAsString();
+            long reservaId = ((Number) JsonPath.read(reservation, "$.id")).longValue();
+
+            mockMvc.perform(get("/api/turista/reservas")
+                            .header("Authorization", "Bearer " + tokenTurista))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].lugarNombre").value("Lugar reservable"));
+            mockMvc.perform(get("/api/servicios/reservas")
+                            .header("Authorization", "Bearer " + tokenGuia))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].id").value(reservaId));
+            mockMvc.perform(patch("/api/servicios/reservas/{id}/estado", reservaId)
+                            .header("Authorization", "Bearer " + tokenGuia)
+                            .contentType(APPLICATION_JSON)
+                            .content("{\"estado\":\"CONFIRMADA\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.estado").value("CONFIRMADA"));
+    }
+
+    @Test
     void preflightCorsPermiteElOrigenAngularConfigurado() throws Exception {
         mockMvc.perform(options("/api/servicios")
                         .header("Origin", "http://localhost:4200")
@@ -390,13 +574,19 @@ class ProyectoApplicationTests {
                         org.hamcrest.Matchers.containsString("POST")))
                 .andExpect(header().string("Access-Control-Allow-Headers",
                         org.hamcrest.Matchers.containsString("authorization")));
+
+        mockMvc.perform(options("/api/servicios")
+                        .header("Origin", "http://127.0.0.1:4200")
+                        .header("Access-Control-Request-Method", "GET"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Access-Control-Allow-Origin", "http://127.0.0.1:4200"));
     }
 
     @Test
     void rutasDeGestionListanSoloRegistrosDelUsuarioAutenticado() throws Exception {
-        String guiaA = iniciarSesionConRol("guia-listado-a", Rol.GUIA);
-        String guiaB = iniciarSesionConRol("guia-listado-b", Rol.GUIA);
-        String propietario = iniciarSesionConRol("propietario-listado", Rol.PROPIETARIO);
+        String propietarioA = iniciarSesionConRol("propietario-listado-a", Rol.PROPIETARIO);
+        String propietarioB = iniciarSesionConRol("propietario-listado-b", Rol.PROPIETARIO);
+        String guia = iniciarSesionConRol("guia-listado", Rol.GUIA);
         String servicioBase = """
                 {
                   "nombre": "%s",
@@ -405,24 +595,24 @@ class ProyectoApplicationTests {
                   "horarios": "Todos los días",
                   "precio": 25.00,
                   "ruta": "Piura",
-                  "contacto": "contacto@example.test",
+                  "contacto": "%s",
                   "aceptaReservas": true
                 }
                 """;
 
         mockMvc.perform(post("/api/servicios")
-                        .header("Authorization", "Bearer " + guiaA)
+                        .header("Authorization", "Bearer " + propietarioA)
                         .contentType(APPLICATION_JSON)
-                        .content(servicioBase.formatted("Servicio privado A")))
+                        .content(servicioBase.formatted("Servicio privado A", "900000013")))
                 .andExpect(status().isCreated());
         mockMvc.perform(post("/api/servicios")
-                        .header("Authorization", "Bearer " + guiaB)
+                        .header("Authorization", "Bearer " + propietarioB)
                         .contentType(APPLICATION_JSON)
-                        .content(servicioBase.formatted("Servicio privado B")))
+                        .content(servicioBase.formatted("Servicio privado B", "900000014")))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(get("/api/servicios/mios")
-                        .header("Authorization", "Bearer " + guiaA))
+                        .header("Authorization", "Bearer " + propietarioA))
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Servicio privado A")))
                 .andExpect(content().string(org.hamcrest.Matchers.not(
@@ -435,24 +625,24 @@ class ProyectoApplicationTests {
                   "descripcion": "Lugar para probar el listado del propietario",
                   "direccion": "Piura",
                   "horarios": "Todos los días",
-                  "contacto": "contacto@example.test"
+                  "contacto": "900000004"
                 }
                 """;
         mockMvc.perform(post("/api/lugares")
-                        .header("Authorization", "Bearer " + propietario)
+                        .header("Authorization", "Bearer " + guia)
                         .contentType(APPLICATION_JSON)
                         .content(lugar.formatted("Lugar privado propietario")))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(get("/api/servicios/lugares")
-                        .header("Authorization", "Bearer " + propietario))
+                        .header("Authorization", "Bearer " + guia))
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Lugar privado propietario")));
     }
 
     @Test
     void turistaCreaReservaYPropietarioLaConfirmaSinIncrementarAtenciones() throws Exception {
-            String tokenPropietario = iniciarSesionConRol("dueno-reserva", Rol.GUIA);
+            String tokenPropietario = iniciarSesionConRol("dueno-reserva", Rol.PROPIETARIO);
             String servicioJson = """
                     {
                       "nombre": "Servicio reservable de prueba",
@@ -461,7 +651,7 @@ class ProyectoApplicationTests {
                       "horarios": "Todos los días",
                       "precio": 50.00,
                       "ruta": "Piura",
-                      "contacto": "guia@example.test",
+                      "contacto": "900000015",
                       "aceptaReservas": true
                     }
                     """;
@@ -491,7 +681,7 @@ class ProyectoApplicationTests {
                             .header("Authorization", "Bearer " + tokenPropietario))
                     .andExpect(status().isConflict());
 
-            String tokenOtroPropietario = iniciarSesionConRol("otro-dueno-reserva", Rol.GUIA);
+            String tokenOtroPropietario = iniciarSesionConRol("otro-dueno-reserva", Rol.PROPIETARIO);
             mockMvc.perform(patch("/api/servicios/reservas/{id}/estado", reservaId)
                             .header("Authorization", "Bearer " + tokenOtroPropietario)
                             .contentType(APPLICATION_JSON)
@@ -536,7 +726,7 @@ class ProyectoApplicationTests {
                       "horarios": "Todos los días",
                       "precio": 30.00,
                       "ruta": "Piura",
-                      "contacto": "guia@example.test",
+                      "contacto": "900000016",
                       "aceptaReservas": true
                     }
                     """;
@@ -553,6 +743,7 @@ class ProyectoApplicationTests {
                             .contentType(APPLICATION_JSON)
                             .content(payloadServicio
                                     .replace("Servicio para cancelación", "Servicio sin reservas")
+                                    .replace("900000016", "900000018")
                                     .replace("\"aceptaReservas\": true", "\"aceptaReservas\": false")))
                     .andExpect(status().isCreated())
                     .andReturn().getResponse().getContentAsString();
@@ -561,7 +752,8 @@ class ProyectoApplicationTests {
                             .header("Authorization", "Bearer " + tokenTurista)
                             .contentType(APPLICATION_JSON)
                             .content("{\"fecha\":\"2099-07-10\",\"cantidadPersonas\":1}"))
-                    .andExpect(status().isConflict());
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.estado").value("PENDIENTE"));
 
             for (String payload : List.of(
                     "{\"fecha\":\"2000-01-01\",\"cantidadPersonas\":1}",
@@ -641,6 +833,9 @@ class ProyectoApplicationTests {
 
         mockMvc.perform(get("/api/servicios")
                         .header("Authorization", "Bearer " + token))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/api/servicios/lugares")
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
 
         mockMvc.perform(post("/api/cuenta/roles")
@@ -659,6 +854,9 @@ class ProyectoApplicationTests {
                         org.hamcrest.Matchers.containsInAnyOrder("TURISTA", "GUIA", "PROPIETARIO")));
         assertThat(usuarios.findByEmailIgnoreCase("solicitud-rol@example.test").orElseThrow().getRoles())
                 .containsExactlyInAnyOrder(Rol.TURISTA, Rol.GUIA, Rol.PROPIETARIO);
+        mockMvc.perform(get("/api/servicios")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
         mockMvc.perform(post("/api/lugares")
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON)
@@ -669,7 +867,7 @@ class ProyectoApplicationTests {
                                   "descripcion": "Lugar creado tras agregar rol",
                                   "direccion": "Piura",
                                   "horarios": "Todos los días",
-                                  "contacto": "contacto@example.test"
+                                  "contacto": "900000005"
                                 }
                                 """))
                 .andExpect(status().isCreated());

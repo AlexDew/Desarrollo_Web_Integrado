@@ -41,14 +41,24 @@ export class ReservationFormComponent implements OnInit {
     ]],
   });
   serviceId = 0;
+  placeId = 0;
   readonly serverErrors = signal<Record<string, string>>({});
   readonly errorMessage = signal('');
   readonly submitting = signal(false);
 
   ngOnInit(): void {
-    this.serviceId = Number(this.route.snapshot.paramMap.get('servicioId'));
-    if (!Number.isInteger(this.serviceId) || this.serviceId < 1) {
-      this.errorMessage.set('El servicio seleccionado no es válido.');
+    const placeId = this.route.snapshot.paramMap.get('lugarId');
+    const serviceId = this.route.snapshot.paramMap.get('servicioId');
+    if (placeId !== null) {
+      this.placeId = Number(placeId);
+      if (!Number.isInteger(this.placeId) || this.placeId < 1) {
+        this.errorMessage.set('El lugar seleccionado no es válido.');
+      }
+    } else {
+      this.serviceId = Number(serviceId);
+      if (!Number.isInteger(this.serviceId) || this.serviceId < 1) {
+        this.errorMessage.set('El servicio seleccionado no es válido.');
+      }
     }
   }
 
@@ -58,14 +68,17 @@ export class ReservationFormComponent implements OnInit {
       this.errorMessage.set('Ingrese datos válidos antes de enviar la solicitud.');
       return;
     }
-    if (this.serviceId < 1) {
+    if (this.serviceId < 1 && this.placeId < 1) {
       return;
     }
 
     this.serverErrors.set({});
     this.errorMessage.set('');
     this.submitting.set(true);
-    this.api.create(this.serviceId, this.form.getRawValue()).subscribe({
+    const request = this.placeId > 0
+      ? this.api.createForPlace(this.placeId, this.form.getRawValue())
+      : this.api.create(this.serviceId, this.form.getRawValue());
+    request.subscribe({
       next: () => {
         this.submitting.set(false);
         void this.router.navigate(['/reservas']);

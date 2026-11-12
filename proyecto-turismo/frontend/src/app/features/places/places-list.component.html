@@ -1,15 +1,15 @@
 <section class="page-shell">
   <div class="page-heading">
     <div>
-      <p class="eyebrow">{{ management ? 'Panel del propietario' : 'Conoce la región' }}</p>
+      <p class="eyebrow">{{ management ? 'Panel del guía' : 'Conoce la región' }}</p>
       <h1>{{ management ? 'Mis lugares' : 'Lugares turísticos' }}</h1>
       <p>
-        {{ management ? 'Administra los lugares turísticos que publicaste.' : 'Descubre atractivos culturales y naturales de Piura.' }}
+        {{ management ? 'Administra los lugares turísticos que publicaste.' : 'Descubre playas y atractivos culturales de Piura.' }}
       </p>
     </div>
     @if (management) {
     <a class="primary-button" routerLink="/gestion/lugares/nuevo">Nuevo lugar</a>
-    } @else if (auth.hasAnyRole(['PROPIETARIO'])) {
+    } @else if (auth.hasAnyRole(['GUIA'])) {
     <a class="primary-button" routerLink="/gestion/lugares">Administrar mis lugares</a>
     }
   </div>
@@ -40,6 +40,18 @@
           <dd>{{ place.contacto }}</dd>
         </div>
       </dl>
+      @if (!management && auth.hasAnyRole(['TURISTA'])) {
+        <app-rating-control
+          [calificacion]="place.calificacion"
+          [pending]="ratingId() === place.id"
+          (rate)="rate(place.id, $event)"
+        />
+      } @else {
+        <p>Calificación: {{ place.calificacion && place.calificacion > 0 ? place.calificacion : 'Sin calificaciones' }}</p>
+      }
+      @if (!management) {
+        <a class="primary-button" [routerLink]="['/reservas/nueva/lugar', place.id]">Solicitar reserva</a>
+      }
       @if (management) {
       <footer>
         <a class="quiet-button" [routerLink]="['/gestion/lugares', place.id, 'editar']">Editar</a>

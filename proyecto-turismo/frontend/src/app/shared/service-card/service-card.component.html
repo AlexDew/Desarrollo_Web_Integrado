@@ -7,13 +7,22 @@
     <div><dt>Horario</dt><dd>{{ servicio.horarios }}</dd></div>
     <div><dt>Contacto</dt><dd>{{ servicio.contacto }}</dd></div>
   </dl>
+  @if (!management && canRate) {
+    <app-rating-control
+      [calificacion]="servicio.calificacion"
+      [pending]="ratingPending"
+      (rate)="rateService.emit($event)"
+    />
+  } @else {
+    <p class="service-rating">Calificación: {{ servicio.calificacion && servicio.calificacion > 0 ? servicio.calificacion : 'Sin calificaciones' }}</p>
+  }
   <footer>
     @if (management) {
       <a class="button button--quiet" [routerLink]="['/gestion/servicios', servicio.id, 'editar']">Editar</a>
       <button class="button button--danger" type="button" [disabled]="deleting" (click)="deleteService.emit(servicio.id)">
         {{ deleting ? 'Eliminando…' : 'Eliminar' }}
       </button>
-    } @else if (servicio.aceptaReservas) {
+    } @else {
       <a class="button" [routerLink]="['/reservas/nueva', servicio.id]">Solicitar reserva</a>
     }
   </footer>

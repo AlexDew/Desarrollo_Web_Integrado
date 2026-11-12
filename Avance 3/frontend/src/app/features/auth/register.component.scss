@@ -1,0 +1,79 @@
+@use '../../styles/variables' as *;
+@use '../../styles/mixins' as *;
+
+.auth-page {
+  @include content-shell;
+  display: grid;
+  min-height: 75vh;
+  place-items: center;
+  padding-block: 3rem;
+}
+
+.form-card {
+  display: grid;
+  width: min(100%, 30rem);
+  gap: 0.65rem;
+  padding: 2rem;
+  border: 1px solid $color-border;
+  border-radius: $radius-card;
+  background: $color-surface;
+  box-shadow: $shadow-card;
+}
+
+.eyebrow,
+.intro,
+.form-foot {
+  margin: 0;
+  color: $color-muted;
+}
+
+.eyebrow {
+  color: $color-primary;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  color: $color-ink;
+}
+
+label {
+  margin-top: 0.5rem;
+  color: $color-ink;
+  font-weight: 700;
+}
+
+input {
+  @include form-control;
+}
+
+.primary-button {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border: 0;
+  border-radius: 0.5rem;
+  color: white;
+  background: $color-primary;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.alert {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  color: $color-danger;
+  background: #fff0ef;
+}
+
+.form-foot a {
+  color: $color-primary;
+  font-weight: 700;
+}

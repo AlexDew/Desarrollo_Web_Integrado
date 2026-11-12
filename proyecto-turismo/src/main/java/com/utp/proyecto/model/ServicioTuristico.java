@@ -15,6 +15,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Pattern;
 
 import java.math.BigDecimal;
 
@@ -45,6 +46,8 @@ public class ServicioTuristico {
     @Column(length = 255)
     private String ruta;
     @NotBlank(groups = ValidacionSolicitud.class)
+    @Pattern(regexp = "\\d{9}", message = "El contacto debe tener exactamente 9 dígitos",
+            groups = ValidacionSolicitud.class)
     @Column(nullable = false, length = 180)
     private String contacto;
     @NotNull(groups = ValidacionSolicitud.class)

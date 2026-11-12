@@ -7,10 +7,10 @@
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Servicios</a>
     <a routerLink="/lugares" routerLinkActive="active">Lugares</a>
     @if (auth.isAuthenticated()) {
-    @if (auth.hasAnyRole(['GUIA', 'PROPIETARIO'])) {
+    @if (auth.hasAnyRole(['PROPIETARIO'])) {
     <a routerLink="/gestion/servicios" routerLinkActive="active">Mis servicios</a>
     }
-    @if (auth.hasAnyRole(['PROPIETARIO'])) {
+    @if (auth.hasAnyRole(['GUIA'])) {
     <a routerLink="/gestion/lugares" routerLinkActive="active">Mis lugares</a>
     }
     @if (auth.hasAnyRole(['TURISTA'])) {
@@ -20,6 +20,11 @@
     @if (auth.hasAnyRole(['GUIA', 'PROPIETARIO'])) {
     <a routerLink="/gestion/reservas" routerLinkActive="active">Solicitudes recibidas</a>
     }
+    <span class="role-list" aria-label="Roles de la cuenta">
+      @for (role of auth.roles(); track role) {
+        <span class="role-badge">{{ roleLabel(role) }}</span>
+      }
+    </span>
     <button class="nav-button" type="button" (click)="logout()">Cerrar sesión</button>
     } @else {
     <a routerLink="/login" routerLinkActive="active">Iniciar sesión</a>

@@ -28,4 +28,10 @@ export class ServicesApiService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.api}/servicios/${id}`);
   }
+
+  rate(id: number, value: number): Observable<TouristService> {
+    return this.http.patch<TouristService>(`${this.api}/servicios/${id}/calificacion`, null, {
+      params: { valor: value },
+    });
+  }
 }

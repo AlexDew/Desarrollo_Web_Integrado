@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import com.utp.proyecto.validation.ValidacionSolicitud;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 @Entity
 @Table(name = "lugares_turisticos")
@@ -23,6 +24,8 @@ public class LugarTuristico {
     @Column(nullable = false, length = 150)
     private String nombre;
     @NotBlank(groups = ValidacionSolicitud.class)
+    @Pattern(regexp = "(?i:PLAYA|CULTURAL)", message = "El tipo debe ser Playa o Cultural",
+            groups = ValidacionSolicitud.class)
     @Column(nullable = false, length = 60)
     private String tipo;
     @NotBlank(groups = ValidacionSolicitud.class)
@@ -35,6 +38,8 @@ public class LugarTuristico {
     @Column(nullable = false, length = 255)
     private String horarios;
     @NotBlank(groups = ValidacionSolicitud.class)
+    @Pattern(regexp = "\\d{9}", message = "El contacto debe tener exactamente 9 dígitos",
+            groups = ValidacionSolicitud.class)
     @Column(nullable = false, length = 180)
     private String contacto;
     @Column(nullable = false)

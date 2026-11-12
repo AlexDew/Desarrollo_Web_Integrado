@@ -1,0 +1,83 @@
+@use '../../styles/variables' as *;
+
+.service-card {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  padding: 1.25rem;
+  border: 1px solid $color-border;
+  border-radius: $radius-card;
+  background: $color-surface;
+  box-shadow: $shadow-card;
+}
+
+.service-card__eyebrow {
+  color: $color-primary;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+h2 {
+  margin: 0.6rem 0;
+  color: $color-ink;
+}
+
+p,
+dd {
+  color: $color-muted;
+  line-height: 1.5;
+}
+
+dl {
+  display: grid;
+  gap: 0.6rem;
+  margin-block: auto 1rem;
+  padding-top: 1rem;
+}
+
+dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+dt {
+  font-weight: 700;
+}
+
+dd {
+  margin: 0;
+  text-align: right;
+}
+
+footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.button {
+  padding: 0.6rem 0.85rem;
+  border: 0;
+  border-radius: 0.5rem;
+  color: white;
+  background: $color-primary;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button--quiet {
+  color: $color-primary;
+  background: #eaf3ed;
+}
+
+.button--danger {
+  background: $color-danger;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}

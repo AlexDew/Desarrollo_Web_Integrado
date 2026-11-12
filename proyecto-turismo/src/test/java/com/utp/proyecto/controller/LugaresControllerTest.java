@@ -18,8 +18,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class LugaresControllerTest {
-    private static final UsuarioAutenticado PROPIETARIO =
-            new UsuarioAutenticado(7L, "propietario@example.test", "hash", true, Set.of(Rol.PROPIETARIO));
+    private static final UsuarioAutenticado GUIA =
+            new UsuarioAutenticado(7L, "guia@example.test", "hash", true, Set.of(Rol.GUIA));
 
     @Mock
     private LugarTuristicoService lugares;
@@ -28,17 +28,17 @@ class LugaresControllerTest {
 
     @Test
     void eliminarLugar_inexistenteDevuelveNotFound() {
-        when(lugares.eliminarLugar(99L, PROPIETARIO.getId())).thenReturn(false);
+        when(lugares.eliminarLugar(99L, GUIA.getId())).thenReturn(false);
 
-        assertThat(controller.eliminarLugar(99L, PROPIETARIO).getStatusCode().value()).isEqualTo(404);
+        assertThat(controller.eliminarLugar(99L, GUIA).getStatusCode().value()).isEqualTo(404);
     }
 
     @Test
     void actualizarLugar_existenteDevuelveOk() {
         LugarTuristico datos = new LugarTuristico();
-        when(lugares.actualizarLugar(1L, datos, PROPIETARIO.getId())).thenReturn(datos);
+        when(lugares.actualizarLugar(1L, datos, GUIA.getId())).thenReturn(datos);
 
-        assertThat(controller.actualizarLugar(1L, datos, PROPIETARIO).getStatusCode().value()).isEqualTo(200);
+        assertThat(controller.actualizarLugar(1L, datos, GUIA).getStatusCode().value()).isEqualTo(200);
     }
 
     @Test

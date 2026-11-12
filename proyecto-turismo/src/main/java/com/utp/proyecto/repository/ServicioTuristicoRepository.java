@@ -12,6 +12,12 @@ import java.util.List;
 public interface ServicioTuristicoRepository extends JpaRepository<ServicioTuristico, Long> {
     List<ServicioTuristico> findByCreador_Id(Long creadorId);
 
+    @Query("""
+            SELECT servicio.id AS id, servicio.contacto AS contacto
+            FROM ServicioTuristico servicio
+            """)
+    List<ContactoRegistrado> listarContactosRegistrados();
+
     @Query("SELECT servicio FROM ServicioTuristico servicio WHERE servicio.activo = true")
     List<ServicioTuristico> listarActivos();
 
@@ -23,11 +29,6 @@ public interface ServicioTuristicoRepository extends JpaRepository<ServicioTuris
             """)
     List<ServicioTuristico> listarActivosPorTipo(@Param("tipo") String tipo);
 
-    @Query("""
-            SELECT servicio
-            FROM ServicioTuristico servicio
-            WHERE servicio.activo = true
-              AND servicio.aceptaReservas = true
-            """)
+    @Query("SELECT servicio FROM ServicioTuristico servicio WHERE servicio.activo = true")
     List<ServicioTuristico> listarActivosQueAceptanReservas();
 }

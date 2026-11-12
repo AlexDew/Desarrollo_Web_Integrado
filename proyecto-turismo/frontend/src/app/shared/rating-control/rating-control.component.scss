@@ -1,0 +1,46 @@
+@use '../../styles/variables' as *;
+
+.rating-control {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block: 0.75rem;
+  color: $color-muted;
+  font-size: 0.9rem;
+}
+
+.rating-control p {
+  width: 100%;
+  margin: 0;
+  color: $color-ink;
+  font-weight: 700;
+}
+
+.rating-control label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.rating-control select,
+.rating-control button {
+  padding: 0.4rem 0.55rem;
+  border: 1px solid $color-border;
+  border-radius: 0.4rem;
+  background: $color-surface;
+  font: inherit;
+}
+
+.rating-control button {
+  color: white;
+  border-color: $color-primary;
+  background: $color-primary;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rating-control button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}

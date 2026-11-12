@@ -24,11 +24,11 @@ describe('PlaceFormComponent validation', () => {
     const fixture = TestBed.createComponent(PlaceFormComponent);
     fixture.componentInstance.form.patchValue({
       nombre: '   ',
-      tipo: 'Natural',
+      tipo: 'playa',
       descripcion: 'Descripción',
       direccion: 'Piura',
       horarios: 'Todos los días',
-      contacto: 'lugar@example.com',
+      contacto: '987654321',
     });
 
     fixture.componentInstance.submit();
@@ -41,15 +41,30 @@ describe('PlaceFormComponent validation', () => {
     http.expectNone(`${environment.apiUrl}/api/lugares`);
   });
 
+  it('accepts only Playa or Cultural and a nine-digit contact', () => {
+    const fixture = TestBed.createComponent(PlaceFormComponent);
+    const { tipo, contacto } = fixture.componentInstance.form.controls;
+
+    tipo.setValue('naturaleza');
+    contacto.setValue('12345678');
+    expect(tipo.hasError('pattern')).toBe(true);
+    expect(contacto.hasError('pattern')).toBe(true);
+
+    tipo.setValue('cultural');
+    contacto.setValue('987654321');
+    expect(tipo.valid).toBe(true);
+    expect(contacto.valid).toBe(true);
+  });
+
   it('shows a server error and restores the place save button', () => {
     const fixture = TestBed.createComponent(PlaceFormComponent);
     fixture.componentInstance.form.patchValue({
       nombre: 'Lugar',
-      tipo: 'Natural',
+      tipo: 'cultural',
       descripcion: 'Descripción',
       direccion: 'Piura',
       horarios: 'Todos los días',
-      contacto: 'lugar@example.com',
+      contacto: '987654321',
     });
 
     fixture.componentInstance.submit();

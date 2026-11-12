@@ -22,10 +22,15 @@ public class Reserva {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "servicio_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "servicio_id")
     @JsonIgnore
     private ServicioTuristico servicio;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lugar_id")
+    @JsonIgnore
+    private LugarTuristico lugar;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "turista_id", nullable = false)
@@ -47,6 +52,9 @@ public class Reserva {
 
     public ServicioTuristico getServicio() { return servicio; }
     public void setServicio(ServicioTuristico servicio) { this.servicio = servicio; }
+
+    public LugarTuristico getLugar() { return lugar; }
+    public void setLugar(LugarTuristico lugar) { this.lugar = lugar; }
 
     public Usuario getTurista() { return turista; }
     public void setTurista(Usuario turista) { this.turista = turista; }

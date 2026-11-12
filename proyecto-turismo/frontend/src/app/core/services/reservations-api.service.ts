@@ -16,6 +16,13 @@ export class ReservationsApiService {
     );
   }
 
+  createForPlace(placeId: number, request: ReservationRequest): Observable<Reservation> {
+    return this.http.post<Reservation>(
+      `${this.api}/turista/lugares/${placeId}/reservas`,
+      request,
+    );
+  }
+
   listMine(): Observable<Reservation[]> {
     return this.http.get<Reservation[]>(`${this.api}/turista/reservas`);
   }

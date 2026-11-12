@@ -1,0 +1,20 @@
+<section class="page-shell">
+  <form class="reservation-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <a class="back-link" routerLink="/">← Volver al catálogo</a>
+    <p class="eyebrow">Solicitud sin pago en línea</p>
+    <h1>Solicitar una reserva</h1>
+    <p class="intro">El proveedor confirmará o rechazará tu solicitud. El pago se coordina directamente con él.</p>
+    @if (errorMessage()) {
+      <p class="alert" role="alert">{{ errorMessage() }}</p>
+    }
+    <label for="fecha">Fecha solicitada</label>
+    <input id="fecha" type="date" [min]="minimumDate" formControlName="fecha">
+    <app-field-error [control]="form.controls.fecha" [serverError]="serverErrors()['fecha']" />
+    <label for="cantidadPersonas">Cantidad de personas</label>
+    <input id="cantidadPersonas" type="number" min="1" max="2147483647" step="1" formControlName="cantidadPersonas">
+    <app-field-error [control]="form.controls.cantidadPersonas" [serverError]="serverErrors()['cantidadPersonas']" />
+    <button class="primary-button" type="submit" [disabled]="submitting() || (serviceId < 1 && placeId < 1)">
+      {{ submitting() ? 'Enviando…' : 'Enviar solicitud' }}
+    </button>
+  </form>
+</section>

@@ -37,6 +37,15 @@ public class ReservaController {
         return reservas.crear(servicioId, turista.getId(), request);
     }
 
+    @PostMapping("/api/turista/lugares/{lugarId}/reservas")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReservaResponse crearParaLugar(
+            @PathVariable Long lugarId,
+            @Valid @RequestBody CrearReservaRequest request,
+            @AuthenticationPrincipal UsuarioAutenticado turista) {
+        return reservas.crearParaLugar(lugarId, turista.getId(), request);
+    }
+
     @GetMapping("/api/turista/reservas")
     public List<ReservaResponse> listarDelTurista(
             @AuthenticationPrincipal UsuarioAutenticado turista) {

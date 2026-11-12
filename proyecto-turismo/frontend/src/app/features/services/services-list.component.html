@@ -1,7 +1,7 @@
 <section class="page-shell">
   <div class="page-heading">
     <div>
-      <p class="eyebrow">{{ management ? 'Panel del proveedor' : 'Descubre la región' }}</p>
+      <p class="eyebrow">{{ management ? 'Panel del propietario de servicios' : 'Descubre la región' }}</p>
       <h1>{{ management ? 'Mis servicios' : 'Servicios turísticos' }}</h1>
       <p>
         {{ management ? 'Administra tus publicaciones y su disponibilidad.' : 'Experiencias y servicios para recorrer Piura.' }}
@@ -24,7 +24,10 @@
       [servicio]="service"
       [management]="management"
       [deleting]="deletingId() === service.id"
+      [canRate]="auth.hasAnyRole(['TURISTA'])"
+      [ratingPending]="ratingId() === service.id"
       (deleteService)="remove($event)"
+      (rateService)="rate(service.id, $event)"
     />
     }
   </div>

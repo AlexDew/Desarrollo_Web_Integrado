@@ -48,7 +48,7 @@ class ServicioTuristicoRepositoryTest {
     }
 
     @Test
-    void listarActivosQueAceptanReservas_filtraPorEstadoYDisponibilidad() {
+    void listarActivosQueAceptanReservas_incluyeTodosLosServiciosActivos() {
         String tipo = tipoUnico();
         servicios.saveAndFlush(crearServicio("JPQL Disponible", tipo, true, true));
         servicios.saveAndFlush(crearServicio("JPQL Sin reservas", tipo, true, false));
@@ -57,10 +57,9 @@ class ServicioTuristicoRepositoryTest {
         List<ServicioTuristico> resultado = servicios.listarActivosQueAceptanReservas();
 
         assertThat(resultado).extracting(ServicioTuristico::getNombre)
-                .contains("JPQL Disponible")
-                .doesNotContain("JPQL Sin reservas", "JPQL Inactivo disponible");
-        assertThat(resultado).allMatch(servicio ->
-                Boolean.TRUE.equals(servicio.getActivo()) && Boolean.TRUE.equals(servicio.getAceptaReservas()));
+                .contains("JPQL Disponible", "JPQL Sin reservas")
+                .doesNotContain("JPQL Inactivo disponible");
+        assertThat(resultado).allMatch(servicio -> Boolean.TRUE.equals(servicio.getActivo()));
     }
 
     private ServicioTuristico crearServicio(String nombre, String tipo, boolean activo, boolean aceptaReservas) {

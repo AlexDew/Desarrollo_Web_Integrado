@@ -25,6 +25,8 @@ class ServicioTuristicoServiceTest {
     private UsuarioRepository usuarios;
     @Mock
     private ReservaRepository reservas;
+    @Mock
+    private TelefonoUnicoService telefonos;
     @InjectMocks
     private ServicioTuristicoService serviciosService;
 

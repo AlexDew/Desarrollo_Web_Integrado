@@ -18,7 +18,13 @@
         </div>
         <div class="field">
           <label for="tipo">Tipo</label>
-          <input id="tipo" formControlName="tipo" placeholder="guía, restaurante, hotel…">
+          <select id="tipo" formControlName="tipo">
+            <option value="">Selecciona un tipo</option>
+            <option value="guia">Guía</option>
+            <option value="hotel">Hotel</option>
+            <option value="restaurante">Restaurante</option>
+            <option value="tienda">Tienda</option>
+          </select>
           <app-field-error [control]="form.controls.tipo" [serverError]="serverErrors()['tipo']" />
         </div>
         <div class="field field--wide">
@@ -43,14 +49,10 @@
         </div>
         <div class="field">
           <label for="contacto">Contacto</label>
-          <input id="contacto" formControlName="contacto">
+          <input id="contacto" type="tel" inputmode="numeric" maxlength="9"
+            formControlName="contacto" placeholder="9 dígitos">
           <app-field-error [control]="form.controls.contacto" [serverError]="serverErrors()['contacto']" />
         </div>
-        <label class="checkbox-field field--wide">
-          <input type="checkbox" formControlName="aceptaReservas">
-          Acepto solicitudes de reserva para este servicio
-        </label>
-        <app-field-error [control]="form.controls.aceptaReservas" [serverError]="serverErrors()['aceptaReservas']" />
       </div>
       <button class="primary-button" type="submit" [disabled]="submitting()">
         {{ submitting() ? 'Guardando…' : (editing ? 'Guardar cambios' : 'Crear servicio') }}

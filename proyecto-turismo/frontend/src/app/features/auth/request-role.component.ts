@@ -11,7 +11,7 @@ import { FieldErrorComponent } from '../../shared/field-error/field-error.compon
 })
 export class RequestRoleComponent {
   private readonly fb = inject(FormBuilder).nonNullable;
-  private readonly auth = inject(AuthService);
+  readonly auth = inject(AuthService);
   private readonly errors = inject(ApiErrorService);
 
   readonly form = this.fb.group({

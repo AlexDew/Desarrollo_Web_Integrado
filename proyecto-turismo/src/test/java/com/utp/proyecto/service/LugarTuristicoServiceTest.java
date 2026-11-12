@@ -3,6 +3,7 @@ package com.utp.proyecto.service;
 import com.utp.proyecto.model.LugarTuristico;
 import com.utp.proyecto.model.Usuario;
 import com.utp.proyecto.repository.LugarTuristicoRepository;
+import com.utp.proyecto.repository.ReservaRepository;
 import com.utp.proyecto.repository.UsuarioRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +23,10 @@ class LugarTuristicoServiceTest {
     private LugarTuristicoRepository lugares;
     @Mock
     private UsuarioRepository usuarios;
+    @Mock
+    private TelefonoUnicoService telefonos;
+    @Mock
+    private ReservaRepository reservas;
     @InjectMocks
     private LugarTuristicoService lugaresService;
 

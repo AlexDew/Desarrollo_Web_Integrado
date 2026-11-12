@@ -33,4 +33,10 @@ export class PlacesApiService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.api}/${id}`);
   }
+
+  rate(id: number, value: number): Observable<TouristPlace> {
+    return this.http.patch<TouristPlace>(`${this.api}/${id}/calificacion`, null, {
+      params: { valor: value },
+    });
+  }
 }

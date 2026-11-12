@@ -1,0 +1,37 @@
+<section class="page-shell">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">{{ management ? 'Panel del propietario de servicios' : 'Descubre la región' }}</p>
+      <h1>{{ management ? 'Mis servicios' : 'Servicios turísticos' }}</h1>
+      <p>
+        {{ management ? 'Administra tus publicaciones y su disponibilidad.' : 'Experiencias y servicios para recorrer Piura.' }}
+      </p>
+    </div>
+    @if (management) {
+    <a class="primary-button" routerLink="/gestion/servicios/nuevo">Nuevo servicio</a>
+    }
+  </div>
+
+  @if (errorMessage()) {
+  <p class="alert" role="alert">{{ errorMessage() }}</p>
+  }
+  @if (loading()) {
+  <p class="status">Cargando servicios…</p>
+  } @else if (services().length) {
+  <div class="service-grid">
+    @for (service of services(); track service.id) {
+    <app-service-card
+      [servicio]="service"
+      [management]="management"
+      [deleting]="deletingId() === service.id"
+      [canRate]="auth.hasAnyRole(['TURISTA'])"
+      [ratingPending]="ratingId() === service.id"
+      (deleteService)="remove($event)"
+      (rateService)="rate(service.id, $event)"
+    />
+    }
+  </div>
+  } @else {
+  <p class="empty-state">{{ management ? 'Todavía no has publicado servicios.' : 'No hay servicios disponibles.' }}</p>
+  }
+</section>

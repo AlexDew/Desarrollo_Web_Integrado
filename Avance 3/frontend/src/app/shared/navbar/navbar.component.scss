@@ -1,0 +1,84 @@
+@use '../../styles/variables' as *;
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1rem max(1rem, calc((100% - $content-width) / 2));
+  background: $color-surface;
+  border-bottom: 1px solid $color-border;
+}
+
+.brand,
+nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand {
+  gap: 0.65rem;
+  color: $color-ink;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.brand__mark {
+  display: grid;
+  width: 2rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 0.65rem;
+  color: white;
+  background: $color-primary;
+}
+
+nav a,
+.nav-button {
+  border: 0;
+  color: $color-muted;
+  background: transparent;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.role-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.role-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  color: $color-primary-dark;
+  background: #eaf3ed;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+nav a.active,
+nav a:hover,
+.nav-button:hover {
+  color: $color-primary;
+}
+
+.signup-link {
+  padding: 0.55rem 0.8rem;
+  border-radius: 0.5rem;
+  color: white;
+  background: $color-primary;
+}
+
+@media (max-width: 48rem) {
+  .navbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  nav {
+    flex-wrap: wrap;
+  }
+}

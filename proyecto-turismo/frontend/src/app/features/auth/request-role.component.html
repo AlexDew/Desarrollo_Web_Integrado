@@ -2,7 +2,7 @@
   <form class="role-form" [formGroup]="form" (ngSubmit)="submit()">
     <p class="eyebrow">Tu cuenta</p>
     <h1>Solicitar un rol de proveedor</h1>
-    <p>El rol se agregará a tu cuenta y conservarás el de turista.</p>
+    <p>El rol se agregará a tu cuenta y conservarás los roles actuales.</p>
     @if (errorMessage()) {
       <p class="alert" role="alert">{{ errorMessage() }}</p>
     }
@@ -11,8 +11,8 @@
     }
     <label for="rol">Rol</label>
     <select id="rol" formControlName="rol">
-      <option value="GUIA">Guía</option>
-      <option value="PROPIETARIO">Propietario de un lugar</option>
+      <option value="GUIA">Guía (gestiona mis lugares)</option>
+      <option value="PROPIETARIO">Propietario de un servicio (gestiona mis servicios)</option>
     </select>
     <app-field-error [control]="form.controls.rol" [serverError]="serverErrors()['rol']" />
     <button class="primary-button" type="submit" [disabled]="submitting()">

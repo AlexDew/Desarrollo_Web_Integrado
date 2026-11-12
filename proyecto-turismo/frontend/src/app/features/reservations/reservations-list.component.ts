@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiErrorService } from '../../core/services/api-error.service';
 import { ReservationsApiService } from '../../core/services/reservations-api.service';
 import { Reservation } from '../../core/models/reservation.model';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   templateUrl: './reservations-list.component.html',
@@ -12,6 +13,7 @@ export class ReservationsListComponent implements OnInit {
   private readonly api = inject(ReservationsApiService);
   private readonly errors = inject(ApiErrorService);
   private readonly route = inject(ActivatedRoute);
+  readonly auth = inject(AuthService);
 
   management = false;
   readonly reservations = signal<Reservation[]>([]);

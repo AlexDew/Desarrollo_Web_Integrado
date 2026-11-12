@@ -16,14 +16,17 @@ public class ServicioTuristicoService {
     private final ServicioTuristicoRepository servicios;
     private final UsuarioRepository usuarios;
     private final ReservaRepository reservas;
+    private final TelefonoUnicoService telefonos;
 
     public ServicioTuristicoService(
             ServicioTuristicoRepository servicios,
             UsuarioRepository usuarios,
-            ReservaRepository reservas) {
+            ReservaRepository reservas,
+            TelefonoUnicoService telefonos) {
         this.servicios = servicios;
         this.usuarios = usuarios;
         this.reservas = reservas;
+        this.telefonos = telefonos;
     }
 
     public List<ServicioTuristico> listarServicios() {
@@ -48,10 +51,12 @@ public class ServicioTuristicoService {
 
     @Transactional
     public ServicioTuristico guardarServicio(ServicioTuristico servicio, Long creadorId) {
+        telefonos.validarServicio(servicio.getContacto(), null);
         servicio.setId(null);
         servicio.setActivo(true);
         servicio.setAtenciones(0);
         servicio.setCalificacion(0.0);
+        servicio.setAceptaReservas(true);
         servicio.setCreador(usuarios.getReferenceById(creadorId));
         return servicios.save(servicio);
     }
@@ -61,6 +66,7 @@ public class ServicioTuristicoService {
         ServicioTuristico servicio = buscarServicio(id);
         if (servicio == null || servicio.getCreador() == null
                 || !servicio.getCreador().getId().equals(creadorId)) return null;
+        telefonos.validarServicio(datos.getContacto(), id);
         servicio.setNombre(datos.getNombre());
         servicio.setTipo(datos.getTipo());
         servicio.setDescripcion(datos.getDescripcion());
@@ -68,9 +74,21 @@ public class ServicioTuristicoService {
         servicio.setPrecio(datos.getPrecio());
         servicio.setRuta(datos.getRuta());
         servicio.setContacto(datos.getContacto());
-        servicio.setAceptaReservas(datos.getAceptaReservas());
+        servicio.setAceptaReservas(true);
         servicio.setActivo(datos.getActivo() == null || datos.getActivo());
         return servicios.save(servicio);
+    }
+
+    @Transactional
+    public boolean calificarServicio(Long id, Double calificacion) {
+        ServicioTuristico servicio = buscarServicio(id);
+        if (servicio == null || !Boolean.TRUE.equals(servicio.getActivo())
+                || calificacion == null || calificacion < 1 || calificacion > 5) {
+            return false;
+        }
+        servicio.setCalificacion(calificacion);
+        servicios.save(servicio);
+        return true;
     }
 
     @Transactional

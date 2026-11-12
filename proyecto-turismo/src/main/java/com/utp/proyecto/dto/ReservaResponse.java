@@ -13,5 +13,7 @@ public record ReservaResponse(
         String turistaEmail,
         LocalDate fecha,
         Integer cantidadPersonas,
-        EstadoReserva estado) {
+        EstadoReserva estado,
+        Long lugarId,
+        String lugarNombre) {
 }

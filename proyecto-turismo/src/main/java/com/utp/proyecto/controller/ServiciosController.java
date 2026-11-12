@@ -53,4 +53,14 @@ public class ServiciosController {
             @AuthenticationPrincipal UsuarioAutenticado usuario) {
         return servicios.listarServiciosDelCreador(usuario.getId());
     }
+
+    @PatchMapping("/{id}/calificacion")
+    public ResponseEntity<ServicioTuristico> calificar(
+            @PathVariable Long id,
+            @RequestParam Double valor) {
+        if (!servicios.calificarServicio(id, valor)) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ofNullable(servicios.buscarServicio(id));
+    }
 }

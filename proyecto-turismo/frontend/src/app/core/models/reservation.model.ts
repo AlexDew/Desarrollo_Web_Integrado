@@ -6,14 +6,16 @@ export type ReservationStatus =
 
 export interface Reservation {
   id: number;
-  servicioId: number;
-  servicioNombre: string;
+  servicioId: number | null;
+  servicioNombre: string | null;
   turistaId: number;
   turistaNombre: string;
   turistaEmail: string;
   fecha: string;
   cantidadPersonas: number;
   estado: ReservationStatus;
+  lugarId?: number | null;
+  lugarNombre?: string | null;
 }
 
 export interface ReservationRequest {

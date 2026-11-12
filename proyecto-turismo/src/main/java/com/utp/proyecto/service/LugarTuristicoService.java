@@ -3,6 +3,9 @@ package com.utp.proyecto.service;
 import com.utp.proyecto.model.LugarTuristico;
 import com.utp.proyecto.repository.UsuarioRepository;
 import com.utp.proyecto.repository.LugarTuristicoRepository;
+import com.utp.proyecto.repository.ReservaRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,10 +14,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class LugarTuristicoService {
     private final LugarTuristicoRepository lugares;
     private final UsuarioRepository usuarios;
+    private final TelefonoUnicoService telefonos;
+    private final ReservaRepository reservas;
 
-    public LugarTuristicoService(LugarTuristicoRepository lugares, UsuarioRepository usuarios) {
+    public LugarTuristicoService(
+            LugarTuristicoRepository lugares,
+            UsuarioRepository usuarios,
+            TelefonoUnicoService telefonos,
+            ReservaRepository reservas) {
         this.lugares = lugares;
         this.usuarios = usuarios;
+        this.telefonos = telefonos;
+        this.reservas = reservas;
     }
 
     public List<LugarTuristico> listarLugares() {
@@ -44,6 +55,7 @@ public class LugarTuristicoService {
     }
 
     public LugarTuristico guardarLugar(LugarTuristico lugar, Long propietarioId) {
+        telefonos.validarLugar(lugar.getContacto(), null);
         lugar.setId(null);
         lugar.setActivo(true);
         lugar.setVisitantes(0);
@@ -56,6 +68,7 @@ public class LugarTuristicoService {
         LugarTuristico lugar = buscarLugar(id);
         if (lugar == null || lugar.getPropietario() == null
                 || !lugar.getPropietario().getId().equals(propietarioId)) return null;
+        telefonos.validarLugar(datos.getContacto(), id);
         lugar.setNombre(datos.getNombre());
         lugar.setTipo(datos.getTipo());
         lugar.setDescripcion(datos.getDescripcion());
@@ -70,6 +83,11 @@ public class LugarTuristicoService {
         LugarTuristico lugar = buscarLugar(id);
         if (lugar == null || lugar.getPropietario() == null
                 || !lugar.getPropietario().getId().equals(propietarioId)) return false;
+        if (reservas.existsByLugar_Id(id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "No se puede eliminar un lugar que tiene solicitudes de reserva");
+        }
         lugares.delete(lugar);
         return true;
     }

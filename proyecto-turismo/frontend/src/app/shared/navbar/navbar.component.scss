@@ -44,6 +44,21 @@ nav a,
   cursor: pointer;
 }
 
+.role-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.role-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  color: $color-primary-dark;
+  background: #eaf3ed;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
 nav a.active,
 nav a:hover,
 .nav-button:hover {

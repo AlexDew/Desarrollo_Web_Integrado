@@ -10,11 +10,13 @@ import java.util.Optional;
 
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     boolean existsByServicio_Id(Long servicioId);
+    boolean existsByLugar_Id(Long lugarId);
 
     @Query("""
             SELECT reserva
             FROM Reserva reserva
-            JOIN FETCH reserva.servicio servicio
+            LEFT JOIN FETCH reserva.servicio servicio
+            LEFT JOIN FETCH reserva.lugar lugar
             JOIN FETCH reserva.turista turista
             WHERE turista.id = :turistaId
             ORDER BY reserva.fecha DESC, reserva.id DESC
@@ -24,9 +26,13 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     @Query("""
             SELECT reserva
             FROM Reserva reserva
-            JOIN FETCH reserva.servicio servicio
+            LEFT JOIN FETCH reserva.servicio servicio
+            LEFT JOIN FETCH servicio.creador servicioCreador
+            LEFT JOIN FETCH reserva.lugar lugar
+            LEFT JOIN FETCH lugar.propietario lugarPropietario
             JOIN FETCH reserva.turista turista
-            WHERE servicio.creador.id = :propietarioId
+            WHERE servicioCreador.id = :propietarioId
+               OR lugarPropietario.id = :propietarioId
             ORDER BY reserva.fecha DESC, reserva.id DESC
             """)
     List<Reserva> listarDeServiciosDelPropietario(@Param("propietarioId") Long propietarioId);
@@ -34,7 +40,8 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     @Query("""
             SELECT reserva
             FROM Reserva reserva
-            JOIN FETCH reserva.servicio servicio
+            LEFT JOIN FETCH reserva.servicio servicio
+            LEFT JOIN FETCH reserva.lugar lugar
             JOIN FETCH reserva.turista turista
             WHERE reserva.id = :reservaId
               AND turista.id = :turistaId
@@ -46,8 +53,10 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     @Query("""
             SELECT reserva
             FROM Reserva reserva
-            JOIN FETCH reserva.servicio servicio
-            JOIN FETCH servicio.creador creador
+            LEFT JOIN FETCH reserva.servicio servicio
+            LEFT JOIN FETCH servicio.creador servicioCreador
+            LEFT JOIN FETCH reserva.lugar lugar
+            LEFT JOIN FETCH lugar.propietario lugarPropietario
             JOIN FETCH reserva.turista turista
             WHERE reserva.id = :reservaId
             """)

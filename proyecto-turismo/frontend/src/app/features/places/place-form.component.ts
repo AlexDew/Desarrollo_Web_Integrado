@@ -20,11 +20,11 @@ export class PlaceFormComponent implements OnInit {
 
   readonly form = this.fb.group({
     nombre: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(150)]],
-    tipo: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(60)]],
+    tipo: ['', [Validators.required, Validators.pattern(/^(playa|cultural)$/i)]],
     descripcion: ['', [Validators.required, Validators.pattern(/\S/)]],
     direccion: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(255)]],
     horarios: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(255)]],
-    contacto: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(180)]],
+    contacto: ['', [Validators.required, Validators.pattern(/^\d{9}$/)]],
   });
   readonly serverErrors = signal<Record<string, string>>({});
   readonly errorMessage = signal('');
@@ -51,7 +51,7 @@ export class PlaceFormComponent implements OnInit {
     this.loading.set(true);
     this.api.get(this.placeId).subscribe({
       next: (place) => {
-        this.form.patchValue(place);
+        this.form.patchValue({ ...place, tipo: place.tipo.toLowerCase() });
         this.loading.set(false);
       },
       error: (error: unknown) => {

@@ -28,7 +28,8 @@ import java.util.List;
 public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource(
-            @Value("${app.cors.allowed-origins:http://localhost:4200}") String allowedOrigins) {
+            @Value("${app.cors.allowed-origins:http://localhost:4200,http://127.0.0.1:4200}")
+            String allowedOrigins) {
         List<String> origins = Arrays.stream(allowedOrigins.split(","))
                 .map(String::trim)
                 .filter(origin -> !origin.isEmpty())
@@ -102,32 +103,38 @@ public class SecurityConfig {
                                 "/api/lugares/*/visitas").hasRole("TURISTA")
                         .requestMatchers(HttpMethod.PATCH,
                                 "/api/turista/lugares/*/calificacion",
-                                "/api/lugares/*/calificacion").hasRole("TURISTA")
+                                "/api/lugares/*/calificacion",
+                                "/api/servicios/*/calificacion").hasRole("TURISTA")
                         .requestMatchers(HttpMethod.POST,
-                                "/api/turista/servicios/*/reservas").hasRole("TURISTA")
+                                "/api/turista/servicios/*/reservas",
+                                "/api/turista/lugares/*/reservas").hasRole("TURISTA")
                         .requestMatchers("/api/turista/**").hasRole("TURISTA")
 
+                        .requestMatchers(HttpMethod.GET, "/api/servicios/reservas")
+                        .hasAnyRole("GUIA", "PROPIETARIO")
+                        .requestMatchers(HttpMethod.PATCH, "/api/servicios/reservas/*/estado")
+                        .hasAnyRole("GUIA", "PROPIETARIO")
                         .requestMatchers(HttpMethod.GET,
                                 "/api/estadisticas",
                                 "/api/servicios/estadisticas",
-                                "/api/servicios").hasAnyRole("PROPIETARIO", "GUIA")
+                                "/api/servicios").hasRole("PROPIETARIO")
 
                         .requestMatchers("/api/servicios/lugares", "/api/servicios/lugares/**")
-                        .hasRole("PROPIETARIO")
+                        .hasRole("GUIA")
                         .requestMatchers(HttpMethod.POST,
                                 "/api/servicios/lugares", "/api/servicios/lugares/**",
-                                "/api/lugares", "/api/lugares/**").hasRole("PROPIETARIO")
+                                "/api/lugares", "/api/lugares/**").hasRole("GUIA")
                         .requestMatchers(HttpMethod.PUT,
                                 "/api/servicios/lugares/**",
-                                "/api/lugares/**").hasRole("PROPIETARIO")
+                                "/api/lugares/**").hasRole("GUIA")
                         .requestMatchers(HttpMethod.DELETE,
                                 "/api/servicios/lugares/**",
-                                "/api/lugares/**").hasRole("PROPIETARIO")
+                                "/api/lugares/**").hasRole("GUIA")
 
-                        .requestMatchers(HttpMethod.POST, "/api/servicios").hasAnyRole("PROPIETARIO", "GUIA")
-                        .requestMatchers(HttpMethod.PUT, "/api/servicios/**").hasAnyRole("PROPIETARIO", "GUIA")
-                        .requestMatchers(HttpMethod.DELETE, "/api/servicios/**").hasAnyRole("PROPIETARIO", "GUIA")
-                        .requestMatchers("/api/servicios/**").hasAnyRole("PROPIETARIO", "GUIA")
+                        .requestMatchers(HttpMethod.POST, "/api/servicios").hasRole("PROPIETARIO")
+                        .requestMatchers(HttpMethod.PUT, "/api/servicios/**").hasRole("PROPIETARIO")
+                        .requestMatchers(HttpMethod.DELETE, "/api/servicios/**").hasRole("PROPIETARIO")
+                        .requestMatchers("/api/servicios/**").hasRole("PROPIETARIO")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

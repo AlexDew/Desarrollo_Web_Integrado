@@ -118,6 +118,15 @@ describe('Authentication form validation', () => {
     expect(fixture.nativeElement.querySelector('button').disabled).toBe(false);
   });
 
+  it('keeps current roles out of the role-request panel', () => {
+    localStorage.setItem('turismo.roles', JSON.stringify(['TURISTA', 'GUIA']));
+    const fixture = TestBed.createComponent(RequestRoleComponent);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).not.toContain('Roles actuales');
+    expect(fixture.nativeElement.textContent).not.toContain('Turista');
+  });
+
   it('shows a role request error and stops the loading state', () => {
     const fixture = TestBed.createComponent(RequestRoleComponent);
     fixture.componentInstance.submit();

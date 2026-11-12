@@ -1,9 +1,9 @@
 <section class="page-shell">
   <div class="page-heading">
     <div>
-      <p class="eyebrow">{{ management ? 'Panel del proveedor' : 'Tu viaje' }}</p>
+      <p class="eyebrow">{{ management ? (auth.hasAnyRole(['GUIA']) ? 'Panel del guía' : 'Panel del propietario') : 'Tu viaje' }}</p>
       <h1>{{ management ? 'Solicitudes recibidas' : 'Mis reservas' }}</h1>
-      <p>{{ management ? 'Responde a las solicitudes de tus servicios.' : 'Consulta o cancela solicitudes que sigan pendientes.' }}</p>
+      <p>{{ management ? 'Responde a las solicitudes de tus lugares y servicios.' : 'Consulta o cancela solicitudes que sigan pendientes.' }}</p>
     </div>
   </div>
   @if (errorMessage()) {
@@ -17,7 +17,7 @@
         <article class="reservation-card">
           <div class="reservation-card__heading">
             <div>
-              <p class="eyebrow">{{ management ? reservation.turistaNombre : reservation.servicioNombre }}</p>
+              <p class="eyebrow">{{ management ? reservation.turistaNombre : (reservation.servicioNombre ?? reservation.lugarNombre) }}</p>
               <h2>{{ reservation.fecha }}</h2>
             </div>
             <span class="status-badge" [class.status-badge--pending]="reservation.estado === 'PENDIENTE'">
@@ -26,7 +26,7 @@
           </div>
           <p>{{ reservation.cantidadPersonas }} persona(s)</p>
           @if (management) {
-            <p>Servicio: {{ reservation.servicioNombre }}</p>
+            <p>{{ reservation.servicioNombre ? 'Servicio' : 'Lugar' }}: {{ reservation.servicioNombre ?? reservation.lugarNombre }}</p>
             <p>Contacto del turista: {{ reservation.turistaEmail }}</p>
           }
           @if (reservation.estado === 'PENDIENTE') {
